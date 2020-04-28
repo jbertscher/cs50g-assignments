@@ -1,0 +1,7 @@
+git init 
+# add every file in your current directory (aka .)
+git add . 
+# commit your changes
+git commit -m "my first commit"
+# push the contents of your master branch to the games50/assignments/2019/x/0 branch in the me50/jbertscher repo on github 
+git push https://github.com/me50/jbertscher master:games50/assignments/2020/x/0 
