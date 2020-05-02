@@ -35,7 +35,7 @@ function PlayState:enter(params)
     self.balls[1].dx = math.random(-200, 200)
     self.balls[1].dy = math.random(-50, -60)
 
-    self.start_time = os.time()
+    self.powerup_timer_start = os.time()
 
     -- create powerup object initialised to be out of play
     self.powerup = Powerup(math.random(10))
@@ -57,12 +57,12 @@ function PlayState:update(dt)
 
     -- update positions based on velocity
     self.paddle:update(dt)
-    for j, ball in pairs(self.balls) do
+    for k, ball in pairs(self.balls) do
         ball:update(dt)
     end
     self.powerup:update(dt)
 
-    for j, ball in pairs(self.balls) do
+    for k, ball in pairs(self.balls) do
         if ball:collides(self.paddle) then
             -- raise ball above paddle in case it goes below it, then reverse dy
             ball.y = self.paddle.y - 8
@@ -126,7 +126,7 @@ function PlayState:update(dt)
                 end
 
                 -- for checking whether to spawn powerup when brick is hit
-                elapsed_time = os.difftime(os.time(), start_time)
+                elapsed_time = os.difftime(os.time(), powerup_timer_start)
                 -- only allow powerup if at least 20s have elapsed and a powerup isn't already in play
                 if elapsed_time > 1 and not self.powerup.inPlay then
                     -- randomly spawn powerup. every second the probability increases by 1/600,
@@ -189,28 +189,33 @@ function PlayState:update(dt)
         end
     end
 
+    -- if ball goes below bounds, remove it from our table of balls in play
     for j, ball in pairs(self.balls) do
-        -- if ball goes below bounds, revert to serve state and decrease health
         if ball.y >= VIRTUAL_HEIGHT then
-            self.health = self.health - 1
-            gSounds['hurt']:play()
+            table.remove(self.balls, j)
+        end
+    end
 
-            if self.health == 0 then
-                gStateMachine:change('game-over', {
-                    score = self.score,
-                    highScores = self.highScores
-                })
-            else
-                gStateMachine:change('serve', {
-                    paddle = self.paddle,
-                    bricks = self.bricks,
-                    health = self.health,
-                    score = self.score,
-                    highScores = self.highScores,
-                    level = self.level,
-                    recoverPoints = self.recoverPoints
-                })
-            end
+    -- if we have no more balls left, revert to serve state and decrease health
+    if #self.balls == 0 then
+        self.health = self.health - 1
+        gSounds['hurt']:play()
+
+        if self.health == 0 then
+            gStateMachine:change('game-over', {
+                score = self.score,
+                highScores = self.highScores
+            })
+        else
+            gStateMachine:change('serve', {
+                paddle = self.paddle,
+                bricks = self.bricks,
+                health = self.health,
+                score = self.score,
+                highScores = self.highScores,
+                level = self.level,
+                recoverPoints = self.recoverPoints
+            })
         end
     end
 
@@ -225,16 +230,18 @@ function PlayState:update(dt)
         if self.powerup:collides(self.paddle) then
             for i = 2, 3 do
                 self.balls[i] = Ball(math.random(7))
-                self.balls[i].x = self.balls[1].x
-                self.balls[i].y = self.balls[1].y
+                self.balls[i].x = self.paddle.x + self.paddle.width/2
+                self.balls[i].y = self.paddle.y
                 -- give ball random starting velocity
                 self.balls[i].dx = math.random(-200, 200)
                 self.balls[i].dy = math.random(-50, -60)
             end
             self.powerup.inPlay = false
-        -- if powerup drops below screen, set it to not be in play
+            self.powerup_timer_start = os.time()
+        -- if powerup drops below screen, set it to not be in play and reset timer
         elseif self.powerup.x > VIRTUAL_HEIGHT then
             self.powerup.inPlay = false
+            self.powerup_timer_start = os.time()
         end
     end
 
@@ -255,7 +262,7 @@ function PlayState:render()
     end
 
     self.paddle:render()
-    for j, ball in pairs(self.balls) do
+    for k, ball in pairs(self.balls) do
         ball:render()
     end
 

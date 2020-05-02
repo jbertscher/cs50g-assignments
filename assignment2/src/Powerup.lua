@@ -31,12 +31,12 @@ end
 
 function Powerup:collides(paddle)
     -- check if powerup is above or below paddle
-    if self.y > paddle.y + paddle.height or self.y < paddle.y + 2 then
+    if self.y + self.height < paddle.y or self.y > paddle.y + paddle.height then
     	return false
     end
 
     -- otherwise, check if edge of powerup is beyond edge of paddle
-    if self.x > paddle.x + paddle.width or self.x < paddle.x then
+    if self.x + self.width < paddle.x or self.x > paddle.x + paddle.width then
     	return false
     end
 
