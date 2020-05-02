@@ -125,3 +125,10 @@ function GenerateQuadsBalls(atlas)
 
     return quads
 end
+
+--[[
+    This function is specifically made to carve out the powerups from the sprite sheet
+]]
+function GenerateQuadsPowerups(atlas)
+    return table.slice(GenerateQuads(atlas, 16, 16), 145, 154)
+end
