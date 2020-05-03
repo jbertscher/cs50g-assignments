@@ -35,10 +35,14 @@ function PlayState:enter(params)
     self.balls[1].dx = math.random(-200, 200)
     self.balls[1].dy = math.random(-50, -60)
 
-    self.powerup_timer_start = os.time()
+    -- keeps track of score so that we can grow the paddle after a certain number
+    -- of points have been achieved
+    self.paddleGrowScoreTracker = 0
 
     -- create powerup object initialised to be out of play
     self.powerup = Powerup(math.random(10))
+    -- keeps track of time of last powerup 
+    self.powerupTimerStart = os.time()
 end
 
 function PlayState:update(dt)
@@ -93,7 +97,13 @@ function PlayState:update(dt)
             if brick.inPlay and ball:collides(brick) then
 
                 -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                self.scoreIncrease = (brick.tier * 200 + brick.color * 25)
+                self.score = self.score + self.scoreIncrease
+                -- add to the score tracker for growing the paddle, unless the paddle is 
+                -- at its maximum size
+                if self.paddle.size ~= self.paddle.maxSize then
+                    self.paddleGrowScoreTracker = self.paddleGrowScoreTracker + self.scoreIncrease
+                end
 
                 -- trigger the brick's hit function, which removes it from play
                 brick:hit()
@@ -126,7 +136,7 @@ function PlayState:update(dt)
                 end
 
                 -- for checking whether to spawn powerup when brick is hit
-                elapsed_time = os.difftime(os.time(), powerup_timer_start)
+                elapsed_time = os.difftime(os.time(), powerupTimerStart)
                 -- only allow powerup if at least 20s have elapsed and a powerup isn't already in play
                 if elapsed_time > 1 and not self.powerup.inPlay then
                     -- randomly spawn powerup. every second the probability increases by 1/600,
@@ -183,6 +193,13 @@ function PlayState:update(dt)
                     ball.dy = ball.dy * 1.02
                 end
 
+                -- accumulating 20,000 points grows the paddle (until the largest size is reached)
+                if self.paddleGrowScoreTracker >= 20000 then
+                    self.paddle:changeSize(1)
+                    -- reset the tracker
+                    self.paddleGrowScoreTracker = 0
+                end
+
                 -- only allow colliding with one brick, for corners
                 break
             end
@@ -199,6 +216,10 @@ function PlayState:update(dt)
     -- if we have no more balls left, revert to serve state and decrease health
     if #self.balls == 0 then
         self.health = self.health - 1
+        -- losing health shrinks the paddle (until the smallest size is reached)
+        self.paddle:changeSize(-1)
+        -- reset the score tracker for growing the paddle
+        self.paddleGrowScoreTracker = 0
         gSounds['hurt']:play()
 
         if self.health == 0 then
@@ -237,11 +258,11 @@ function PlayState:update(dt)
                 self.balls[i].dy = math.random(-50, -60)
             end
             self.powerup.inPlay = false
-            self.powerup_timer_start = os.time()
+            self.powerupTimerStart = os.time()
         -- if powerup drops below screen, set it to not be in play and reset timer
         elseif self.powerup.x > VIRTUAL_HEIGHT then
             self.powerup.inPlay = false
-            self.powerup_timer_start = os.time()
+            self.powerupTimerStart = os.time()
         end
     end
 

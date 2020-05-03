@@ -40,6 +40,16 @@ function Paddle:init(skin)
     -- the variant is which of the four paddle sizes we currently are; 2
     -- is the starting size, as the smallest is too tough to start with
     self.size = 2
+    self.maxSize = 4
+end
+
+--[[
+    update the paddle size, which also changes its width, ensuring that 
+    the size doesn't fall below 1 or increase beyond 4.
+]]
+function Paddle:changeSize(step)
+    self.size = math.min(math.max(1, self.size + step), 4)
+    self.width = self.size * 32
 end
 
 function Paddle:update(dt)
