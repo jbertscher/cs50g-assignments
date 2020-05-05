@@ -29,6 +29,12 @@ function PlayState:enter(params)
     self.balls = params.balls
     self.level = params.level
 
+    for k, brick in pairs(self.bricks) do
+        if brick.isLocked then
+            self.isLockedBrickInPlay = true
+        end
+    end
+
     self.recoverPoints = 5000
 
     -- give ball random starting velocity
@@ -39,10 +45,11 @@ function PlayState:enter(params)
     -- of points have been achieved
     self.paddleGrowScoreTracker = 0
 
-    -- create powerup object initialised to be out of play
-    self.powerup = Powerup(math.random(10))
-    -- keeps track of time of last powerup 
-    self.powerupTimerStart = os.time()
+    -- create powerup objects, initialised to be out of play, indexed by table
+    self.powerups = {
+        ['bonus'] = Powerup(7),
+        ['key'] = Powerup(10)
+    }
 end
 
 function PlayState:update(dt)
@@ -64,9 +71,19 @@ function PlayState:update(dt)
     for k, ball in pairs(self.balls) do
         ball:update(dt)
     end
-    self.powerup:update(dt)
 
-    for k, ball in pairs(self.balls) do
+    -- if the locked brick is in play, then allow for the possibility that the key power spawns
+    if self.isLockedBrickInPlay and not self.powerups['key'].inPlay and not self.powerups['key'].isVisible then
+        -- key powerup spawns on average once every 2 minutes
+        if math.random() < 1/120 * dt then
+            self.powerups['key'].isVisible = true   
+            -- spawn it at a random x coordinate and above the top edge of the screen
+            self.powerups['key'].x = math.random(VIRTUAL_WIDTH) - self.powerups['key'].width
+            self.powerups['key'].y = -self.powerups['key'].height
+        end
+    end
+
+    for j, ball in pairs(self.balls) do
         if ball:collides(self.paddle) then
             -- raise ball above paddle in case it goes below it, then reverse dy
             ball.y = self.paddle.y - 8
@@ -87,64 +104,71 @@ function PlayState:update(dt)
 
             gSounds['paddle-hit']:play()
         end
-    end
 
-    -- detect collision across all bricks with the ball
-    for k, brick in pairs(self.bricks) do
-
-        for j, ball in pairs(self.balls) do
+        -- detect collision across all bricks with the ball
+        for k, brick in pairs(self.bricks) do
             -- only check collision if we're in play
             if brick.inPlay and ball:collides(brick) then
 
-                -- add to score
-                self.scoreIncrease = (brick.tier * 200 + brick.color * 25)
-                self.score = self.score + self.scoreIncrease
-                -- add to the score tracker for growing the paddle, unless the paddle is 
-                -- at its maximum size
-                if self.paddle.size ~= self.paddle.maxSize then
-                    self.paddleGrowScoreTracker = self.paddleGrowScoreTracker + self.scoreIncrease
-                end
+                if not brick.isLocked or self.powerups['key'].inPlay then
+                    -- trigger the brick's hit function, which removes it from play
+                    brick:hit()
 
-                -- trigger the brick's hit function, which removes it from play
-                brick:hit()
+                    -- add to score
+                    self.scoreIncrease = (brick.tier * 200 + brick.color * 25) + (brick.isLocked == true and 1 or 0 * 50000)
+                    self.score = self.score + self.scoreIncrease
+                    -- add to the score tracker for growing the paddle, unless the paddle is 
+                    -- at its maximum size
+                    if self.paddle.size ~= self.paddle.maxSize then
+                        self.paddleGrowScoreTracker = self.paddleGrowScoreTracker + self.scoreIncrease
+                    end
 
-                -- if we have enough points, recover a point of health
-                if self.score > self.recoverPoints then
-                    -- can't go above 3 health
-                    self.health = math.min(3, self.health + 1)
+                    -- if we have enough points, recover a point of health
+                    if self.score > self.recoverPoints then
+                        -- can't go above 3 health
+                        self.health = math.min(3, self.health + 1)
 
-                    -- multiply recover points by 2
-                    self.recoverPoints = math.min(100000, self.recoverPoints * 2)
+                        -- multiply recover points by 2
+                        self.recoverPoints = math.min(100000, self.recoverPoints * 2)
 
-                    -- play recover sound effect
-                    gSounds['recover']:play()
-                end
+                        -- play recover sound effect
+                        gSounds['recover']:play()
+                    end
 
-                -- go to our victory screen if there are no more bricks left
-                if self:checkVictory() then
-                    gSounds['victory']:play()
+                    -- go to our victory screen if there are no more bricks left
+                    if self:checkVictory() then
+                        gSounds['victory']:play()
 
-                    gStateMachine:change('victory', {
-                        level = self.level,
-                        paddle = self.paddle,
-                        health = self.health,
-                        score = self.score,
-                        highScores = self.highScores,
-                        ball = ball,
-                        recoverPoints = self.recoverPoints
-                    })
-                end
+                        gStateMachine:change('victory', {
+                            level = self.level,
+                            paddle = self.paddle,
+                            health = self.health,
+                            score = self.score,
+                            highScores = self.highScores,
+                            ball = ball,
+                            recoverPoints = self.recoverPoints
+                        })
+                    end
 
-                -- for checking whether to spawn powerup when brick is hit
-                elapsed_time = os.difftime(os.time(), powerupTimerStart)
-                -- only allow powerup if at least 20s have elapsed and a powerup isn't already in play
-                if elapsed_time > 1 and not self.powerup.inPlay then
-                    -- randomly spawn powerup. every second the probability increases by 1/600,
-                    -- up to a maximum probability of 0.1.
-                    if math.random() < 0.99 then--min(0.1, elapsed_time/600) then
-                        self.powerup.inPlay = true
-                        self.powerup.x = brick.x + 8
-                        self.powerup.y = brick.y + 16
+                    -- if brick was locked, we must have unlocked it so no locked brick is in play anymore
+                    if brick.isLocked then
+                        self.isLockedBrickInPlay = false
+                    end
+
+                    -- for checking whether to spawn bonus powerup when brick is hit
+                    elapsed_time = os.difftime(os.time(), self.powerups['bonus'].startTime)
+                    -- only allow powerup if at least 20s have elapsed
+                    if elapsed_time > 20 and not self.powerups['bonus'].isVisible then
+                        -- randomly spawn powerup. every second the probability that the powerup spawns 
+                        -- when a brick is hit increases by 1/600, up to a maximum probability of 0.1
+                        if math.random() < math.min(0.1, elapsed_time/600) then
+                            self.powerups['bonus'].isVisible = true
+                            -- spawn in the middle of the brick that was just hit
+                            self.powerups['bonus'].x = brick.x + 8
+                            self.powerups['bonus'].y = brick.y + 16
+                            -- reset the elapsed time
+                            self.powerups['bonus'].startTime = os.time()
+                        end
                     end
                 end
 
@@ -204,10 +228,7 @@ function PlayState:update(dt)
                 break
             end
         end
-    end
 
-    -- if ball goes below bounds, remove it from our table of balls in play
-    for j, ball in pairs(self.balls) do
         if ball.y >= VIRTUAL_HEIGHT then
             table.remove(self.balls, j)
         end
@@ -221,6 +242,12 @@ function PlayState:update(dt)
         -- reset the score tracker for growing the paddle
         self.paddleGrowScoreTracker = 0
         gSounds['hurt']:play()
+
+        for k, powerup in pairs(self.powerups) do
+            powerup.inPlay = false
+            -- restart the time
+            powerup.startTime = os.time()
+        end
 
         if self.health == 0 then
             gStateMachine:change('game-over', {
@@ -245,25 +272,36 @@ function PlayState:update(dt)
         brick:update(dt)
     end
 
-    -- if powerup is in play, check for collision or dropping below screen
-    if self.powerup.inPlay then
-        -- if powerup collides with paddle, spawn 2 more balls
-        if self.powerup:collides(self.paddle) then
-            for i = 2, 3 do
-                self.balls[i] = Ball(math.random(7))
-                self.balls[i].x = self.paddle.x + self.paddle.width/2
-                self.balls[i].y = self.paddle.y
-                -- give ball random starting velocity
-                self.balls[i].dx = math.random(-200, 200)
-                self.balls[i].dy = math.random(-50, -60)
-            end
-            self.powerup.inPlay = false
-            self.powerupTimerStart = os.time()
-        -- if powerup drops below screen, set it to not be in play and reset timer
-        elseif self.powerup.x > VIRTUAL_HEIGHT then
-            self.powerup.inPlay = false
-            self.powerupTimerStart = os.time()
+    -- if powerup is visible, check for collision or dropping below screen
+    for k, powerup in pairs(self.powerups) do   
+        if powerup.isVisible then
+
+            -- if powerup collides with paddle, do something depending on the type of powerup
+            if powerup:collides(self.paddle) then
+                if k == 'bonus' then
+                    for i = #self.balls + 1, #self.balls + 2 do
+                        self.balls[i] = Ball(math.random(7))
+                        -- spawn ball in the middle of the paddle
+                        self.balls[i].x = self.paddle.x + self.paddle.width/2
+                        self.balls[i].y = self.paddle.y
+                        -- give ball random starting velocity
+                        self.balls[i].dx = math.random(-200, 200)
+                        self.balls[i].dy = math.random(-50, -60)
+                    end
+                elseif k == 'key' then
+                    powerup.inPlay = true
+                end
+                powerup.isVisible = false
+                powerup.startTime = os.time()
+
+            -- if powerup drops below screen, set it to not be in play and reset timer
+            elseif powerup.y > VIRTUAL_HEIGHT then
+                powerup.isVisible = false
+                powerup.startTime = os.time()
+            end                
         end
+
+        powerup:update(dt)
     end
 
     if love.keyboard.wasPressed('escape') then
@@ -296,8 +334,10 @@ function PlayState:render()
         love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
     end
 
-    -- render powerup (if in play)
-    self.powerup:render()
+    -- render powerup (if visible)
+    for k, powerup in pairs(self.powerups) do
+        powerup:render()
+    end
 end
 
 function PlayState:checkVictory()
