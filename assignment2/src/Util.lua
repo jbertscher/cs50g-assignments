@@ -55,7 +55,17 @@ end
     we have to return a subset of GenerateQuads.
 ]]
 function GenerateQuadsBricks(atlas)
-    return table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
+    bricks = table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
+    -- insert the locked brick quad
+    table.insert(bricks, GenerateQuadLockedBrick(atlas))
+    return bricks
+end
+
+--[[
+    This function picks out the locked brick
+]]
+function GenerateQuadLockedBrick(atlas)
+    return love.graphics.newQuad(161, 49, 32, 16, atlas:getDimensions())
 end
 
 --[[

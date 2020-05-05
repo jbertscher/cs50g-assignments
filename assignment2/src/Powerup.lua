@@ -20,13 +20,22 @@ function Powerup:init(skin)
     self.y = 0
 
     -- keeping track of velocity in Y axis, since powerup can only move downwards. 
-    self.dy = math.random(60, 70)
+    self.dy = 70
+
+    -- this will indicate the powerup type (the action that it performs)
+    self.type = type
 
     -- this will be the skin used for the powerup
     self.skin = skin
 
     -- used to determine whether the powerup should be updated and rendered
+    self.isVisible = false
+
+    -- used to determine whether the effect of the powerup should be maintained
     self.inPlay = false
+
+    -- used to determine elapsed time since the powerup is spawned
+    self.startTime = os.time()
 end
 
 function Powerup:collides(paddle)
@@ -45,20 +54,28 @@ function Powerup:collides(paddle)
 	return true
 end
 
+--[[
+    Update powerup, if visible
+]]
 function Powerup:update(dt)
-	if self.inPlay then
-		self.y = self.y + self.dy * dt
-	end
+    if self.isVisible then
+        self.y = self.y + self.dy * dt
+    end
 end
 
 --[[
-	Render powerup if it's in play
+	Render powerup, if visible
 ]]
 function Powerup:render()
-    -- gTexture is our global texture for all blocks
-    -- gFrames['powerups'] is a table of quads mapping to each individual powerup skin in the texture
+    if self.isVisible then
+        -- gTexture is our global texture for all blocks
+        love.graphics.draw(gTextures['main'], gFrames['powerups'][self.skin],
+    	   self.x, self.y)
+    end
+
+    -- render the key next to the hearts to indicate that the key powerup is in play
     if self.inPlay then
-	    love.graphics.draw(gTextures['main'], gFrames['powerups'][self.skin],
-	        self.x, self.y)
-	end
+        love.graphics.draw(gTextures['main'], gFrames['powerups'][self.skin],
+           VIRTUAL_WIDTH - 120, 0)
+    end
 end

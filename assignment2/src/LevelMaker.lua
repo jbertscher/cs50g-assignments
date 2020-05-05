@@ -23,6 +23,9 @@ ALTERNATE = 2       -- alternate colors
 SKIP = 3            -- skip every other block
 NONE = 4            -- no blocks this row
 
+-- probability that any level contains a locked brick
+LOCKED_BRICK_PROB = 0.1
+
 LevelMaker = Class{}
 
 --[[
@@ -112,12 +115,19 @@ function LevelMaker.createMap(level)
                 b.tier = solidTier
             end 
 
+
             table.insert(bricks, b)
 
             -- Lua's version of the 'continue' statement
             ::continue::
         end
     end 
+
+    -- there's a LOCKED_BRICK_PROB% chance of this level having a locked brick
+    if math.random() < LOCKED_BRICK_PROB then
+        -- randomly assign a brick to be locked
+        bricks[math.random(#bricks)].isLocked = true
+    end
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then
