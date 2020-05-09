@@ -62,6 +62,7 @@ function Board:calculateMatches()
     -- horizontal matches first
     for y = 1, 8 do
         local colorToMatch = self.tiles[y][1].color
+        local shinyTileMatched = false
 
         matchNum = 1
         
@@ -71,6 +72,10 @@ function Board:calculateMatches()
             -- if this is the same color as the one we're trying to match...
             if self.tiles[y][x].color == colorToMatch then
                 matchNum = matchNum + 1
+                -- indicate that we have a shiny tile in the match if that's the case
+                if self.tiles[y][x].shiny then
+                  shinyTileMatched = true
+                end
             else
                 
                 -- set this as the new color we want to watch for
@@ -80,13 +85,22 @@ function Board:calculateMatches()
                 if matchNum >= 3 then
                     local match = {}
 
-                    -- go backwards from here by matchNum
-                    for x2 = x - 1, x - matchNum, -1 do
-                        
-                        -- add each tile to the match that's in that match
-                        table.insert(match, self.tiles[y][x2])
+                    local matchStartIndex, matchEndIndex
+                    -- if there's a shiny tile in the match, go backwards from end of the row to beginning
+                    if shinyTileMatched then  
+                      matchStartIndex = 8
+                      matchEndIndex = 1
+                    -- if there's no shiny tile in the match, go backwards from here by matchNum
+                    else
+                      matchStartIndex = x - 1
+                      matchEndIndex = matchNum
                     end
-
+                    
+                    for x2 = matchStartIndex, matchEndIndex, -1 do             
+                      -- add each tile to the match that's in that match
+                      table.insert(match, self.tiles[y][x2])
+                    end
+                    
                     -- add this match to our total matches table
                     table.insert(matches, match)
                 end
@@ -100,7 +114,8 @@ function Board:calculateMatches()
             end
         end
 
-        -- account for the last row ending with a match
+        -- account for the last row ending with a match (we do this because match is only checked 
+        -- when string of matches ends and if the final row ends in a match then this will never happen)
         if matchNum >= 3 then
             local match = {}
             
