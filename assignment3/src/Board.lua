@@ -36,7 +36,7 @@ function Board:initializeTiles(level)
         for tileX = 1, 8 do
             
             -- create a new tile at X,Y with a random color and variety
-            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(18), math.random(maxVariety)))
+            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(8) * 2, math.random(maxVariety)))
         end
     end
 
@@ -45,6 +45,113 @@ function Board:initializeTiles(level)
         -- recursively initialize if matches were returned so we always have
         -- a matchless board on start
         self:initializeTiles()
+    end
+end
+
+function Board:swapTiles(x1, y1, x2, y2)
+    local tile1 = self.tiles[y1][x1]
+  
+    local tempX = tile1.gridX
+    local tempY = tile1.gridY
+
+    local tile2 = self.tiles[y2][x2]
+
+    tile1.gridX = tile2.gridX
+    tile1.gridY = tile2.gridY
+    tile2.gridX = tempX
+    tile2.gridY = tempY
+
+    -- swap tiles in the tiles table
+    self.tiles[tile1.gridY][tile1.gridX] = tile1
+    self.tiles[tile2.gridY][tile2.gridX] = tile2
+    
+    return tile1, tile2
+end
+
+--[[
+    Checks if swap between 2 tiles would result in a match. Uses similar logic
+    to Board:calculateMatches but only checks for match within the row and column
+    of the swapped tiles and returns whether the swap results in a match.
+    
+    We want to check if moving highlightedTile to the (boardHighlightX, boardHighlightY)
+    coordinates would result in a match.
+]]
+function Board:swapIfMatch(x1, y1, x2, y2)
+    local tile1, tile2 = self.swapTiles(x1, y1, x2, y2)
+    local tiles = {tile1, tile2}
+    
+    local fountMatch = false
+    
+    -- check if either tile's new position will result in a match
+    for k, tile in pairs(tiles) do       
+        local colorToMatch = tile.color
+        
+        local matchNum = 1
+  
+        -- horizontal matches first
+        y = tile.gridY
+        
+        -- start 1 tile to the left and continue moving left to look for matches
+        for x = tile.gridX - 1, 1, -1 do
+            if self.tiles[y][x].color == colorToMatch then
+                matchNum = matchNum + 1
+                if matchNum >= 3 then
+                    foundMatch = true
+                    break
+                end
+            else
+                break
+            end
+        end
+        -- if we're here, we didn't find enough matches on the left so look on the right
+        for x = tile.gridX + 1, 8 do
+            if self.tiles[y][x].color == colorToMatch then
+                matchNum = matchNum + 1
+                if matchNum >= 3 then 
+                    foundMatch = true
+                    break
+                end
+            else
+                break
+            end
+        end
+        
+        -- since we're here, we haven't found enough horizonal matches so now look vertically:
+        matchNum = 1
+        x = tile.gridX
+        
+        -- start 1 tile above tile and continue moving up to look for matches
+        for y = tile.gridY - 1, 1, -1 do
+            if self.tiles[y][x].color == colorToMatch then
+                matchNum = matchNum + 1
+                if matchNum >= 3 then
+                    foundMatch = true
+                    break
+                end
+            else
+                break
+            end
+        end
+        -- if we're here, we didn't find enough matches above, so look down
+        for y = tile.gridY + 1, 8 do
+            if self.tiles[y][x].color == colorToMatch then
+                matchNum = matchNum + 1
+                if matchNum >= 3 then
+                    foundMatch = true
+                    break
+                end
+            else
+                break
+            end
+        end
+    end
+      
+    if foundMatch then
+        return {tile1, tile2}
+    else
+      -- swap the tiles back so that the hypothetical swap has no effect
+      self.swapTiles(x1, y1, x2, y2)
+      return false
     end
 end
 

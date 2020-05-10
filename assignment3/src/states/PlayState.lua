@@ -123,8 +123,8 @@ function PlayState:update(dt)
 
         -- if we've pressed enter, to select or deselect a tile...
         if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-            
-            -- if same tile as currently highlighted, deselect
+            -- add 1 to x and y indices because we're zero-indexing highlighted tiles 
+            -- (via self.boardHighlight*) but tiles are one-indexed in self.board.tiles
             local x = self.boardHighlightX + 1
             local y = self.boardHighlightY + 1
             
@@ -141,35 +141,29 @@ function PlayState:update(dt)
             elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
                 gSounds['error']:play()
                 self.highlightedTile = nil
+                
+            -- if there's no match, also remove highlight (only allow swaps if there's a match)
+--            elseif not self.board:checkSwapCreatesMatch(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y) then
+--                self.highlightedTile = nil
+                
             else
-                
                 -- swap grid positions of tiles
-                local tempX = self.highlightedTile.gridX
-                local tempY = self.highlightedTile.gridY
-
-                local newTile = self.board.tiles[y][x]
-
-                self.highlightedTile.gridX = newTile.gridX
-                self.highlightedTile.gridY = newTile.gridY
-                newTile.gridX = tempX
-                newTile.gridY = tempY
-
-                -- swap tiles in the tiles table
-                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] =
-                    self.highlightedTile
-
-                self.board.tiles[newTile.gridY][newTile.gridX] = newTile
-
-                -- tween coordinates between the two so they swap
-                Timer.tween(0.1, {
-                    [self.highlightedTile] = {x = newTile.x, y = newTile.y},
-                    [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
-                })
-                
-                -- once the swap is finished, we can tween falling blocks as needed
-                :finish(function()
-                    self:calculateMatches()
-                end)
+                local tile1, tile2 = self.board:swapTiles(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y)
+                -- if swap doesn't result in a match then swap back and remove highlight
+                if self.board:calculateMatches() == false then
+                    tile1, tile2 = self.board:swapTiles(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y)
+                    self.highlightedTile = nil
+                else
+                    -- tween coordinates between the two so they swap
+                    Timer.tween(0.1, {
+                        [tile1] = {x = tile2.x, y = tile2.y},
+                        [tile2] = {x = tile1.x, y = tile1.y}
+                    })
+                    -- once the swap is finished, we can tween falling blocks as needed
+                    :finish(function()
+                        self:calculateMatches()
+                    end)
+                end
             end
         end
     end
