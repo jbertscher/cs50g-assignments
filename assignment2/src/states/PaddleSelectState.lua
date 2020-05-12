@@ -14,7 +14,7 @@
 
 PaddleSelectState = Class{__includes = BaseState}
 
-START_LEVEL = 1
+START_LEVEL = 32
 
 function PaddleSelectState:enter(params)
     self.highScores = params.highScores

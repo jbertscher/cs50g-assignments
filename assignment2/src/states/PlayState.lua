@@ -28,7 +28,7 @@ function PlayState:enter(params)
     self.highScores = params.highScores
     self.balls = params.balls
     self.level = params.level
-
+    
     for k, brick in pairs(self.bricks) do
         if brick.isLocked then
             self.isLockedBrickInPlay = true
@@ -50,6 +50,12 @@ function PlayState:enter(params)
         ['bonus'] = Powerup(7),
         ['key'] = Powerup(10)
     }
+    
+    self.maxBonusPowerupProb = 1.0  --  0.1
+    self.incrBonusPowerupProbPerSec = 1.0  -- 1/600 
+    self.avgMinsTillKeyPowerup = 0.3  -- 3
+    self.minTimeTillBonusPowerup = 1  -- 20
+    
 end
 
 function PlayState:update(dt)
@@ -74,8 +80,8 @@ function PlayState:update(dt)
 
     -- if the locked brick is in play, then allow for the possibility that the key power spawns
     if self.isLockedBrickInPlay and not self.powerups['key'].inPlay and not self.powerups['key'].isVisible then
-        -- key powerup spawns on average once every 2 minutes
-        if math.random() < 1/120 * dt then
+        -- key powerup spawns on average once every self.avgMinsTillKeyPowerup minutes
+        if math.random() < 1/(60 * self.avgMinsTillKeyPowerup) * dt then
             self.powerups['key'].isVisible = true   
             -- spawn it at a random x coordinate and above the top edge of the screen
             self.powerups['key'].x = math.random(VIRTUAL_WIDTH) - self.powerups['key'].width
@@ -157,11 +163,11 @@ function PlayState:update(dt)
 
                     -- for checking whether to spawn bonus powerup when brick is hit
                     elapsed_time = os.difftime(os.time(), self.powerups['bonus'].startTime)
-                    -- only allow powerup if at least 20s have elapsed
-                    if elapsed_time > 20 and not self.powerups['bonus'].isVisible then
+                    -- only allow powerup if at least self.minTimeTillBonusPowerup seconds have elapsed
+                    if elapsed_time > self.minTimeTillBonusPowerup and not self.powerups['bonus'].isVisible then
                         -- randomly spawn powerup. every second the probability that the powerup spawns 
-                        -- when a brick is hit increases by 1/600, up to a maximum probability of 0.1
-                        if math.random() < math.min(0.1, elapsed_time/600) then
+                        -- when a brick is hit increases by self.incrBrickPowerupProbPerSec, up to a maximum probability of 0.1
+                        if math.random() < math.min(self.maxBonusPowerupProb, self.incrBonusPowerupProbPerSec) then
                             self.powerups['bonus'].isVisible = true
                             -- spawn in the middle of the brick that was just hit
                             self.powerups['bonus'].x = brick.x + 8
@@ -218,7 +224,7 @@ function PlayState:update(dt)
                 end
 
                 -- accumulating 20,000 points grows the paddle (until the largest size is reached)
-                if self.paddleGrowScoreTracker >= 20000 then
+                if self.paddleGrowScoreTracker >= 2000 then
                     self.paddle:changeSize(1)
                     -- reset the tracker
                     self.paddleGrowScoreTracker = 0
