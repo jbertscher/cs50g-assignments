@@ -127,7 +127,7 @@ function PlayState:update(dt)
             -- (via self.boardHighlight*) but tiles are one-indexed in self.board.tiles
             local x = self.boardHighlightX + 1
             local y = self.boardHighlightY + 1
-            
+                        
             -- if nothing is highlighted, highlight current tile
             if not self.highlightedTile then
                 self.highlightedTile = self.board.tiles[y][x]
@@ -142,16 +142,13 @@ function PlayState:update(dt)
                 gSounds['error']:play()
                 self.highlightedTile = nil
                 
-            -- if there's no match, also remove highlight (only allow swaps if there's a match)
---            elseif not self.board:checkSwapCreatesMatch(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y) then
---                self.highlightedTile = nil
-                
-            else
+           else
                 -- swap grid positions of tiles
                 local tile1, tile2 = self.board:swapTiles(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y)
                 -- if swap doesn't result in a match then swap back and remove highlight
-                if self.board:calculateMatches() == false then
-                    tile1, tile2 = self.board:swapTiles(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y)
+--                if self.board:calculateMatches() == false then
+                if self.board:checkIfSwapCreatesMatch(self.highlightedTile.gridX, self.highlightedTile.gridY, x, y) == false then
+                    tile1, tile2 = self.board:swapTiles(tile1.gridX, tile1.gridY, tile2.gridX, tile2.gridY)
                     self.highlightedTile = nil
                 else
                     -- tween coordinates between the two so they swap

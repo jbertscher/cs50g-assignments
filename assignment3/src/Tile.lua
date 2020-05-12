@@ -30,9 +30,8 @@ function Tile:init(x, y, color, variety, shiny)
     
     -- indicates whether the tile is a special shiny tile than destroys on entire row
     -- when it's in a match. randomly decide whether a tile is shiny (on average, one
-    -- shiny tile for every 64 that are generated - the number of tiles on the board at 
-    -- one time)
-    self.shiny = math.random() <  1/64 and true or false
+    -- shiny tile for every 20 that are generated)
+    self.shiny = math.random() < 1/20 and true or false
 end
 
 function Tile:render(x, y)
@@ -47,10 +46,10 @@ function Tile:render(x, y)
     love.graphics.draw(gTextures['main'], gFrames['tiles'][self.color][self.variety],
         self.x + x, self.y + y)
       
-    -- if we have a shiny tile, we need to render it as such
+    -- if we have a shiny tile, we need to render it as such with a golden border
     if self.shiny then
-      love.graphics.setColor(255, 215, 0, 100)
-      love.graphics.rectangle('line', self.x + x, self.y + y, 32, 32, 5, 5)
+      love.graphics.setColor(255, 215, 0, 120)
+      love.graphics.rectangle('line', self.x + x + 2, self.y + y + 2, 30, 30, 6, 6)
       love.graphics.setColor(255, 255, 255, 255)
     end
 end
