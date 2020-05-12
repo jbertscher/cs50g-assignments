@@ -24,7 +24,7 @@ SKIP = 3            -- skip every other block
 NONE = 4            -- no blocks this row
 
 -- probability that any level contains a locked brick
-LOCKED_BRICK_PROB = 0.1
+LOCKED_BRICK_PROB = 1.0  -- 0.1
 
 LevelMaker = Class{}
 
