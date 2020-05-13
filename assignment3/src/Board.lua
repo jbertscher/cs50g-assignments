@@ -26,9 +26,9 @@ end
 
 function Board:initializeTiles(level)
     self.tiles = {}
-    level=1
+	
     -- every 2 levels, we increase the variety (from min of 1 up to max of 6)
-    maxVariety = math.min(math.max(1, math.floor(level / 2)), 6)
+    maxVariety = math.min(round(self.level/2), 6)
     
     for tileY = 1, 8 do
         
