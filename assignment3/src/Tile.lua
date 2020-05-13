@@ -27,11 +27,12 @@ function Tile:init(x, y, color, variety, shiny)
     self.color = color
     
     self.variety = variety
-    
+	
     -- indicates whether the tile is a special shiny tile than destroys on entire row
     -- when it's in a match. randomly decide whether a tile is shiny (on average, one
     -- shiny tile for every 20 that are generated)
-    self.shiny = math.random() < 1/20 and true or false
+	SHINY_PROB = 1/3  -- 1/20
+    self.shiny = math.random() < SHINY_PROB and true or false
 end
 
 function Tile:render(x, y)
