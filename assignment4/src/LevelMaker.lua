@@ -37,7 +37,7 @@ function LevelMaker.generate(width, height)
                 Tile(x, y, tileID, nil, tileset, topperset))
         end
 
-        -- chance to just be emptiness
+        -- chance to just be emptiness (i.e. 'chasm')
         if math.random(7) == 1 then
             for y = 7, height do
                 table.insert(tiles[y],
