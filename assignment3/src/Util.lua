@@ -83,3 +83,11 @@ function print_r ( t )
     end
     print()
 end
+
+--[[
+	The following function rounds a number to the given number of decimal places.
+]]
+function round(num, numDecimalPlaces)
+  local mult = 10^(numDecimalPlaces or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
