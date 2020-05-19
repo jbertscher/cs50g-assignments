@@ -10,8 +10,11 @@ PlayState = Class{__includes = BaseState}
 function PlayState:init()
     self.camX = 0
     self.camY = 0
-    self.mapWidth = 100
+    self.mapWidth = 20
     self.mapHeight = 10
+    print('!')
+    print('! started generating level')
+    print('!')
     self.level = LevelMaker.generate(self.mapWidth, self.mapHeight)
     self.tileMap = self.level.tileMap
     self.background = math.random(3)
@@ -20,16 +23,18 @@ function PlayState:init()
     self.gravityOn = true
     self.gravityAmount = 6
 
-    local playerStartTile
+    local playerStartColumn
+    -- this loop ends with first non-empty (i.e. no chasm exists) column assigned to playerStartColumn 
     for i = 1, self.mapWidth do 
-        playerStartTile = i
-        if not PlayState:chasmAt(playerStartTile, self.mapHeight, self.level.tileMap.tiles) then
+        playerStartColumn= i
+        if not self:chasmAt(playerStartColumn) then
             break
         end
     end
-    print(playerStartX)
+    
     self.player = Player({
-        x = (playerStartTile - 1) * TILE_SIZE, y = 0,
+        x = (playerStartColumn- 1) * TILE_SIZE,  -- convert start column to a pixel y-value for rendering
+        y = 0,
         width = 16, height = 20,
         texture = 'green-alien',
         stateMachine = StateMachine {
@@ -47,9 +52,12 @@ function PlayState:init()
     self.player:changeState('falling')
 end
 
-function PlayState:chasmAt(x, mapHeight, tiles)
-    for y = mapHeight, 1, -1 do
-        if tiles[y][x].id == TILE_ID_GROUND then
+--[[
+    Returns whether a chasm (no land) exists at a given column
+]]
+function PlayState:chasmAt(column)
+    for y = self.mapHeight, 1, -1 do
+        if self.level.tileMap.tiles[y][column].id == TILE_ID_GROUND then
             return false
         end
     end
