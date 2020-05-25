@@ -35,6 +35,18 @@ function GenerateQuads(atlas, tilewidth, tileheight)
 end
 
 --[[
+    Generates the flag pole quads
+]]
+function GenerateFlagPoleQuads(atlas)
+end
+
+--[[
+    Generates the flag quads
+]]
+function GenerateFlagQuads(atlas)
+end
+    
+--[[
     Divides quads we've generated via slicing our tile sheet into separate tile sets.
 ]]
 function GenerateTileSets(quads, setsX, setsY, sizeX, sizeY)

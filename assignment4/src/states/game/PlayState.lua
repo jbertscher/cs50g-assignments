@@ -12,9 +12,6 @@ function PlayState:init()
     self.camY = 0
     self.mapWidth = 20
     self.mapHeight = 10
-    print('!')
-    print('! started generating level')
-    print('!')
     self.level = LevelMaker.generate(self.mapWidth, self.mapHeight)
     self.tileMap = self.level.tileMap
     self.background = math.random(3)

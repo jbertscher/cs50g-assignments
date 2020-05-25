@@ -22,6 +22,7 @@ function LevelMaker.generate(width, height)
     local tileset = math.random(20)
     local topperset = math.random(20)
     
+    -- keep track of whether key and lock generated
     local keyGenerated = false
     local lockGenerated = false
 
@@ -62,11 +63,14 @@ function LevelMaker.generate(width, height)
                 blockHeight = 2
                     
                 -- chance to generate key on pillar
-                
+                if not keyGenerated and math.random() < 1/width then
+                    -- UPDATE
                 -- chance to generate lock on pillar
+                elseif not lockGenerated and math.random() < 1/width then
+                    -- UPDATE
                 
                 -- chance to generate bush on pillar
-                if math.random(8) == 1 then
+                elseif math.random(8) == 1 then
                     table.insert(objects,
                         GameObject {
                             texture = 'bushes',
@@ -90,39 +94,23 @@ function LevelMaker.generate(width, height)
             elseif not keyGenerated and math.random() < 1/width then
                 table.insert(objects,
                     GameObject {
-                    texture = 'keys_and_locks',
-                    x = (x - 1) * TILE_SIZE,
-                    y = (6 - 1) * TILE_SIZE,
-                    width = 16,
-                    height = 16,
-                    frame = math.random(4),
-                    collidable = true,
-                    consumable = true,
-                    solid = false,
-
+                        texture = 'keys_and_locks',
+                        x = (x - 1) * TILE_SIZE,
+                        y = (6 - 1) * TILE_SIZE,
+                        width = 16,
+                        height = 16,
+                        frame = math.random(4),
+                        collidable = true,
+                        consumable = true,
+                        solid = false,
+                        
+                        onConsume = function(player, object)
+                            gSounds['pickup']:play()
+                            player.hasKey = true
+                        end
                     }
                 )
                 keyGenerated = true
-                print('generated key at ' .. tostring(x))
-        
-            -- chance to generate a lock
-            elseif not lockGenerated and math.random() < 1/width then
-                table.insert(objects,
-                    GameObject {
-                    texture = 'keys_and_locks',
-                    x = (x - 1) * TILE_SIZE,
-                    y = (6 - 1) * TILE_SIZE,
-                    width = 16,
-                    height = 16,
-                    frame = math.random(5, 8),
-                    collidable = true,
-                    consumable = false,
-                    solid = false,
-                    }
-                )
-                lockGenerated = true
-                print('generated lock at ' .. tostring(x))
-
             
             -- chance to generate bushes
             elseif math.random(8) == 1 then
@@ -139,8 +127,49 @@ function LevelMaker.generate(width, height)
                 )
             end
 
+            -- chance to generate a lock
+            if not lockGenerated and math.random() < 1/width then
+                table.insert(objects,
+                    GameObject {
+                        isLock = true,
+                        texture = 'keys_and_locks',
+                        x = (x - 1) * TILE_SIZE,
+                        y = (blockHeight - 1) * TILE_SIZE,
+                        width = 16,
+                        height = 16,
+                        frame = math.random(5, 8),
+                        collidable = true,  
+                        consumable = false,  
+                        solid = true,
+                                                
+                        onCollide = function(player, object)
+                            -- spawn flag object
+                            if player.hasKey then
+                                table.insert(objects,
+                                    GameObject {
+                                        texture = 'flag_poles',
+                                        x = (x - 1) * TILE_SIZE,
+                                        y = (blockHeight - 1) * TILE_SIZE,
+                                        width = 16, -- ?
+                                        height = 16,  -- ?
+                                        frame = math.random(5, 8),  -- ?
+                                        collidable = true,  
+                                        consumable = false,  
+                                        solid = true,
+                                                                
+                                        onCollide = function(player, object)
+                                            -- end level and spawn a new one
+                                        end
+                                    }
+                                )
+                            end
+                        end
+                    }
+                )
+                lockGenerated = true
+                
             -- chance to spawn a block
-            if math.random(10) == 1 then
+            elseif math.random(10) == 1 then
                 table.insert(objects,
 
                     -- jump block
@@ -201,20 +230,18 @@ function LevelMaker.generate(width, height)
                         end
                     }
                 )
+
             end
         end
     end
 
     local map = TileMap(width, height)
     map.tiles = tiles
-    
+
     -- ensure that a lock and key are generated
-    print('! foo')
-    if not keyGenerated or not lockGenerated then
-        print('! bar')
-        LevelMaker.generate(width, height)
-    else
-        print('! END')
-        return GameLevel(entities, objects, map)
+    if (not keyGenerated) or (not lockGenerated) then
+        return LevelMaker.generate(width, height)
     end
+
+    return GameLevel(entities, objects, map)
 end
