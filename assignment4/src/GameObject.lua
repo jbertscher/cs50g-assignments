@@ -21,6 +21,7 @@ function GameObject:init(def)
     self.onCollide = def.onCollide
     self.onConsume = def.onConsume
     self.hit = def.hit
+    self.isLock = def.isLock and def.isLock or false  -- if def.isLock passed, we make that its value (otherwise false by default)
 end
 
 function GameObject:collides(target)

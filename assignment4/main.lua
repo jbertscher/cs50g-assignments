@@ -19,6 +19,8 @@
     https://freesound.org/people/Sirkoto51/sounds/393818/
 ]]
 
+io.stdout:setvbuf("no") 
+
 require 'src/Dependencies'
 
 function love.load()
