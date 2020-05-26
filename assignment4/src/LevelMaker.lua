@@ -144,12 +144,14 @@ function LevelMaker.generate(width, height)
                                                 
                         onCollide = function(player, object)
                             -- spawn flag object
+                            local levelWidth = width
+                            print(levelWidth)
                             if player.hasKey then
                                 table.insert(objects,
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flag_poles',
-                                        x = (x - 1) * TILE_SIZE,
+                                        x = (width - 1) * TILE_SIZE, 
                                         y = (blockHeight - 1) * TILE_SIZE,
                                         width = 16, 
                                         height = 48,  
@@ -167,11 +169,11 @@ function LevelMaker.generate(width, height)
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flags',
-                                        x = (x - 1) * TILE_SIZE,
+                                        x = (width - 1) * TILE_SIZE + 8,
                                         y = (blockHeight - 1) * TILE_SIZE,
                                         width = 16, 
-                                        height = 48,  
-                                        frame = math.random(2),
+                                        height = 16,  
+                                        frame = math.random(8),
                                         collidable = false,  
                                         consumable = false,  
                                         solid = false,

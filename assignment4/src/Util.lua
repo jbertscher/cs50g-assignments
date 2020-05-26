@@ -61,12 +61,12 @@ end
 ]]
 function GenerateFlagQuads(atlas)
     quads = {}
---    for row = 1, 4 do
---        table.insert(quads, table.slice(GenerateQuads(atlas, 16, 16), row*7, row*7))
---        table.insert(quads, table.slice(GenerateQuads(atlas, 16, 16), row*7, (row*7)+1))
---    end
-    quads = table.slice(GenerateQuads(atlas, 16, 16), 7, 8)
-    print_r(quads)
+    for column = 7, 8 do
+        local nextQuads = table.slice(GenerateQuads(atlas, 16, 16), column, column + (3 * 9), 9)
+        for row = 1, 4 do
+            quads[#quads+1] = nextQuads[row]
+        end
+    end
     return quads
 end
     
