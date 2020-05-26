@@ -147,15 +147,34 @@ function LevelMaker.generate(width, height)
                             if player.hasKey then
                                 table.insert(objects,
                                     GameObject {
-                                        texture = 'flag_poles',
+                                        texture = 'flag_and_poles',
+                                        frameTexture = 'flag_poles',
                                         x = (x - 1) * TILE_SIZE,
                                         y = (blockHeight - 1) * TILE_SIZE,
-                                        width = 16, -- ?
-                                        height = 16,  -- ?
-                                        frame = math.random(5, 8),  -- ?
-                                        collidable = true,  
+                                        width = 16, 
+                                        height = 48,  
+                                        frame = math.random(6),
+                                        collidable = false,  
                                         consumable = false,  
-                                        solid = true,
+                                        solid = false,
+                                                                
+                                        onCollide = function(player, object)
+                                            -- end level and spawn a new one
+                                        end
+                                    }
+                                )
+                                table.insert(objects,
+                                    GameObject {
+                                        texture = 'flag_and_poles',
+                                        frameTexture = 'flags',
+                                        x = (x - 1) * TILE_SIZE,
+                                        y = (blockHeight - 1) * TILE_SIZE,
+                                        width = 16, 
+                                        height = 48,  
+                                        frame = math.random(2),
+                                        collidable = false,  
+                                        consumable = false,  
+                                        solid = false,
                                                                 
                                         onCollide = function(player, object)
                                             -- end level and spawn a new one
