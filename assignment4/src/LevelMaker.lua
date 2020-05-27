@@ -25,6 +25,10 @@ function LevelMaker.generate(width, height)
     -- keep track of whether key and lock generated
     local keyGenerated = false
     local lockGenerated = false
+    
+    -- keep track of last 2 columns where we can spawn the flag (want to place it in 2nd 
+    -- last place because otherwise the flag gets cut off at the right edge of the screen.
+    local last2ColsForFlag = {1, 2}
 
     -- insert blank tables into tiles for later access
     for x = 1, height do
@@ -33,6 +37,7 @@ function LevelMaker.generate(width, height)
 
     -- column by column generation instead of row; sometimes better for platformers
     for x = 1, width do
+        canSpawnFlag = true
         local tileID = TILE_ID_EMPTY
         
         -- lay out the empty space
@@ -47,6 +52,7 @@ function LevelMaker.generate(width, height)
                 table.insert(tiles[y],
                     Tile(x, y, tileID, nil, tileset, topperset))
             end
+            canSpawnFlag = false
         else
             tileID = TILE_ID_GROUND
 
@@ -89,6 +95,8 @@ function LevelMaker.generate(width, height)
                 tiles[5][x] = Tile(x, 5, tileID, topper, tileset, topperset)
                 tiles[6][x] = Tile(x, 6, tileID, nil, tileset, topperset)
                 tiles[7][x].topper = nil
+                
+                canSpawnFlag = false
             
             -- chance to generate a key
             elseif not keyGenerated and math.random() < 1/width then
@@ -111,6 +119,7 @@ function LevelMaker.generate(width, height)
                     }
                 )
                 keyGenerated = true
+                canSpawnFlag = false
             
             -- chance to generate bushes
             elseif math.random(8) == 1 then
@@ -143,7 +152,7 @@ function LevelMaker.generate(width, height)
                         solid = true,
                                                 
                         onCollide = function(player, object)
-                            -- spawn flag object
+                            -- spawn flag and flag-pole object
                             if player.hasKey then
                                 gSounds['powerup-reveal']:play()
                                 
@@ -151,8 +160,8 @@ function LevelMaker.generate(width, height)
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flag_poles',
-                                        x = (width - 1) * TILE_SIZE - 16, 
-                                        y = (blockHeight - 1) * TILE_SIZE,
+                                        x = (last2ColsForFlag[1] - 1) * TILE_SIZE, 
+                                        y = (4 - 1) * TILE_SIZE,
                                         width = 16, 
                                         height = 48,  
                                         frame = math.random(6),
@@ -175,8 +184,8 @@ function LevelMaker.generate(width, height)
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flags',
-                                        x = (width - 1) * TILE_SIZE - 8,
-                                        y = (blockHeight - 1) * TILE_SIZE,
+                                        x = (last2ColsForFlag[1] - 1) * TILE_SIZE + 8,
+                                        y = (4 - 1) * TILE_SIZE,
                                         width = 16, 
                                         height = 16,  
                                         frame = math.random(8),
@@ -200,6 +209,7 @@ function LevelMaker.generate(width, height)
                     }
                 )
                 lockGenerated = true
+                canSpawnFlag = false
                 
             -- chance to spawn a block
             elseif math.random(10) == 1 then
@@ -263,7 +273,10 @@ function LevelMaker.generate(width, height)
                         end
                     }
                 )
-
+            canSpawnFlag = false
+            end
+            if canSpawnFlag then
+                last2ColsForFlag = {last2ColsForFlag[2], x}
             end
         end
     end

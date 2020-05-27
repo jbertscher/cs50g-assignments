@@ -10,7 +10,7 @@ PlayState = Class{__includes = BaseState}
 function PlayState:enter(params)
     self.camX = 0
     self.camY = 0
-    self.mapWidth = params and (params.mapWidth * 1.5) or 10
+    self.mapWidth = params and (params.mapWidth * 1.5) or 20
     self.mapHeight = 10
     self.level = LevelMaker.generate(self.mapWidth, self.mapHeight)
     self.tileMap = self.level.tileMap
@@ -49,12 +49,6 @@ function PlayState:enter(params)
 
     self.player:changeState('falling')
 end
-
---function PlayState:enter(params)
---    self.score = params.score
---    self.mapWidth = params.mapWidth
---    self.level = LevelMaker.generate(self.mapWidth, self.mapHeight)
---end
     
 --[[
     Returns whether a chasm (no land) exists at a given column
