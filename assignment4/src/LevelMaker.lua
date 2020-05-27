@@ -64,10 +64,10 @@ function LevelMaker.generate(width, height)
                     
                 -- chance to generate key on pillar
                 if not keyGenerated and math.random() < 1/width then
-                    -- UPDATE
+                    -- TODO
                 -- chance to generate lock on pillar
                 elseif not lockGenerated and math.random() < 1/width then
-                    -- UPDATE
+                    -- TODO
                 
                 -- chance to generate bush on pillar
                 elseif math.random(8) == 1 then
@@ -127,7 +127,7 @@ function LevelMaker.generate(width, height)
                 )
             end
 
-            -- chance to generate a lock
+            -- chance to generate a lock block
             if not lockGenerated and math.random() < 1/width then
                 table.insert(objects,
                     GameObject {
@@ -144,24 +144,30 @@ function LevelMaker.generate(width, height)
                                                 
                         onCollide = function(player, object)
                             -- spawn flag object
-                            local levelWidth = width
-                            print(levelWidth)
                             if player.hasKey then
+                                gSounds['powerup-reveal']:play()
+                                
                                 table.insert(objects,
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flag_poles',
-                                        x = (width - 1) * TILE_SIZE, 
+                                        x = (width - 1) * TILE_SIZE - 16, 
                                         y = (blockHeight - 1) * TILE_SIZE,
                                         width = 16, 
                                         height = 48,  
                                         frame = math.random(6),
                                         collidable = false,  
-                                        consumable = false,  
+                                        consumable = true,  
                                         solid = false,
                                                                 
-                                        onCollide = function(player, object)
+                                        onConsume = function(player, object)
                                             -- end level and spawn a new one
+                                            gStateMachine:change('play',
+                                                {
+                                                    score = player.score,
+                                                    mapWidth = width
+                                                }
+                                            )
                                         end
                                     }
                                 )
@@ -169,17 +175,23 @@ function LevelMaker.generate(width, height)
                                     GameObject {
                                         texture = 'flag_and_poles',
                                         frameTexture = 'flags',
-                                        x = (width - 1) * TILE_SIZE + 8,
+                                        x = (width - 1) * TILE_SIZE - 8,
                                         y = (blockHeight - 1) * TILE_SIZE,
                                         width = 16, 
                                         height = 16,  
                                         frame = math.random(8),
                                         collidable = false,  
-                                        consumable = false,  
+                                        consumable = true,  
                                         solid = false,
                                                                 
-                                        onCollide = function(player, object)
+                                        onConsume = function(player, object)
                                             -- end level and spawn a new one
+                                            gStateMachine:change('play',
+                                                {
+                                                    score = player.score,
+                                                    mapWidth = width
+                                                }
+                                            )
                                         end
                                     }
                                 )
