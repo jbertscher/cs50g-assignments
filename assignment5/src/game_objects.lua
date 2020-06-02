@@ -26,5 +26,19 @@ GAME_OBJECT_DEFS = {
     },
     ['pot'] = {
         -- TODO
+    },
+    ['heart'] = {
+        type = 'heart',
+        texture = 'hearts',
+        frame = 5,
+        width = 16,
+        height = 16,
+        solid = false,
+        
+        onConsume = function(heart, player)
+            -- we don't want to increase health more than the max of 6
+            addHealth = math.min(6 - player.health, 2)
+            player:damage(-addHealth)
+        end
     }
 }

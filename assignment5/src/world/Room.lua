@@ -64,7 +64,15 @@ function Room:generateEntities()
             width = 16,
             height = 16,
 
-            health = 1
+            health = 1,
+
+            onDeath = function(entity)
+                -- chance entity drops a heart
+                if math.random() < 0.1 then
+                    self:dropHeart(entity)
+                end
+                entity.dead = true
+            end
         })
 
         self.entities[i].stateMachine = StateMachine {
@@ -146,6 +154,15 @@ function Room:generateWallsAndFloors()
     end
 end
 
+function Room:dropHeart(entity)
+    -- create heart GameObject
+    table.insert(self.objects, GameObject(
+        GAME_OBJECT_DEFS['heart'],
+        entity.x,
+        entity.y
+    ))
+end
+
 function Room:update(dt)
     -- don't update anything if we are sliding to another room (we have offsets)
     if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
@@ -157,7 +174,10 @@ function Room:update(dt)
 
         -- remove entity from the table if health is <= 0
         if entity.health <= 0 then
-            entity.dead = true
+            -- if entity isn't already dead, call function that handles death
+            if not entity.dead then
+                entity.onDeath(entity)
+            end
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -181,6 +201,12 @@ function Room:update(dt)
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
+            -- if object has an onConsume function then use it
+            if object.onConsume then
+               object.onConsume(object, self.player) 
+               
+               table.remove(self.objects, k)
+            end
         end
     end
 end
