@@ -6,7 +6,7 @@
     cogden@cs50.harvard.edu
 ]]
 
-require 'src/Dependencies'
+require 'src/Dependencies' 
 
 function love.load()
     math.randomseed(os.time())

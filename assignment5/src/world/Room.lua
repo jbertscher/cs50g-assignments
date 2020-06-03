@@ -112,6 +112,17 @@ function Room:generateObjects()
             gSounds['door']:play()
         end
     end
+    
+    potDef = GAME_OBJECT_DEFS['pot']
+    -- get random frame from pot textures to generate each time
+    potDef.frame = math.random(9)
+    table.insert(self.objects, GameObject(
+        potDef,
+        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+    ))
 end
 
 --[[
@@ -201,8 +212,12 @@ function Room:update(dt)
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
+            -- make sure we can't walk through the object
+            if object.solid then
+            
+            
             -- if object has an onConsume function then use it
-            if object.onConsume then
+            elseif object.onConsume then
                object.onConsume(object, self.player) 
                
                table.remove(self.objects, k)

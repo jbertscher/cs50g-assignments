@@ -35,6 +35,35 @@ function GenerateQuads(atlas, tilewidth, tileheight)
 end
 
 --[[
+    Utility function for slicing tables, a la Python.
+
+    https://stackoverflow.com/questions/24821045/does-lua-have-something-like-pythons-slice
+]]
+function table.slice(tbl, first, last, step)
+    local sliced = {}
+  
+    for i = first or 1, last or #tbl, step or 1 do
+      sliced[#sliced+1] = tbl[i]
+    end
+  
+    return sliced
+end
+
+--[[
+    Generates the flag pole quads
+]]
+function GeneratePotQuads(atlas)
+    quads = {}
+    for column = 14, 16 do
+        local nextQuads = table.slice(GenerateQuads(atlas, 16, 16), column, column + (2 * 19), 19)
+        for row = 1, 3 do
+            quads[#quads+1] = nextQuads[row]
+        end
+    end
+    return quads
+end
+
+--[[
     Recursive table printing function.
     https://coronalabs.com/blog/2014/09/02/tutorial-printing-table-contents/
 ]]
