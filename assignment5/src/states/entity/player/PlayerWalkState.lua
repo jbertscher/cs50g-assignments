@@ -42,7 +42,8 @@ function PlayerWalkState:update(dt)
     EntityWalkState.update(self, dt)
 
     -- if we bumped something when checking collision, check any object collisions
-    if self.bumped then
+    if self.entity.bumped then
+        print('!')
         if self.entity.direction == 'left' then
             
             -- temporarily adjust position
@@ -55,6 +56,10 @@ function PlayerWalkState:update(dt)
                     self.entity.y = doorway.y + 4
                     Event.dispatch('shift-left')
                 end
+            end
+            
+            for k, object in pairs(self.entity.collidedObjects) do
+                print('! left collision.')
             end
 
             -- readjust

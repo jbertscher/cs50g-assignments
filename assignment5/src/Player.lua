@@ -10,6 +10,9 @@ Player = Class{__includes = Entity}
 
 function Player:init(def)
     Entity.init(self, def)
+    
+    -- keep track of collided objects
+    self.collidedObjects = {}
 end
 
 function Player:update(dt)
@@ -23,6 +26,22 @@ function Player:collides(target)
                 selfY + selfHeight < target.y or selfY > target.y + target.height)
 end
 
+function Player:checkObjectCollisions()
+    local collidedObjects = {}
+
+    for k, object in pairs(self.level.objects) do
+        if object:collides(self) then
+            if object.solid then
+                table.insert(collidedObjects, object)
+            elseif object.consumable then
+                object.onConsume(self)
+                table.remove(self.room.objects, k)
+            end
+        end
+    end
+
+    return collidedObjects
+end
 function Player:render()
     Entity.render(self)
     -- love.graphics.setColor(255, 0, 255, 255)

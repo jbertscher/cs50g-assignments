@@ -38,6 +38,9 @@ function Entity:init(def)
     self.dead = false
 
     self.onDeath = def.onDeath
+    
+    -- reference to level for tests against other entities + objects
+    self.currentRoom = def.currentRoom
 end
 
 function Entity:createAnimations(animations)

@@ -214,12 +214,10 @@ function Room:update(dt)
             object:onCollide()
             -- make sure we can't walk through the object
             if object.solid then
-            
-            
+                table.insert(self.player.collidedObjects, object)
             -- if object has an onConsume function then use it
             elseif object.onConsume then
                object.onConsume(object, self.player) 
-               
                table.remove(self.objects, k)
             end
         end
