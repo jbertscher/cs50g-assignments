@@ -23,6 +23,18 @@ function Player:collides(target)
                 selfY + selfHeight < target.y or selfY > target.y + target.height)
 end
 
+function Player:checkObjectCollisions(objects)
+    local collidedObjects = {}
+
+    for k, object in pairs(objects) do
+        if self:collides(object) and object.solid then
+            table.insert(collidedObjects, object)
+        end
+    end
+
+    return collidedObjects
+end
+
 function Player:render()
     Entity.render(self)
     -- love.graphics.setColor(255, 0, 255, 255)
