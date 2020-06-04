@@ -32,6 +32,7 @@ function Room:init(player)
 
     -- reference to player for collisions, etc.
     self.player = player
+    player.objects = self.objects
 
     -- used for centering the dungeon rendering
     self.renderOffsetX = MAP_RENDER_OFFSET_X
@@ -209,20 +210,20 @@ function Room:update(dt)
     for k, object in pairs(self.objects) do
         object:update(dt)
 
-        -- trigger collision callback on object
-        if self.player:collides(object) then
-            object:onCollide()
-            -- make sure we can't walk through the object
-            print('! ?')
-            if object.solid and (love.keyboard.isDown('enter') or love.keyboard.isDown('return')) then
-                print('! here we are!.')
+--        -- trigger collision callback on object
+--        if self.player:collides(object) then
+--            object:onCollide()
+--            -- make sure we can't walk through the object
+--            print('! ?')
+--            if object.solid and (love.keyboard.isDown('enter') or love.keyboard.isDown('return')) then
+--                print('! here we are!.')
             
-            -- if object has an onConsume function then use it
-            elseif object.onConsume then
-               object.onConsume(object, self.player) 
-               table.remove(self.objects, k)
-            end
-        end
+--            -- if object has an onConsume function then use it
+--            elseif object.onConsume then
+--               object.onConsume(object, self.player) 
+--               table.remove(self.objects, k)
+--            end
+--        end
     end
 end
 
