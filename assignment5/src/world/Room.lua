@@ -213,9 +213,9 @@ function Room:update(dt)
         if self.player:collides(object) then
             object:onCollide()
             -- make sure we can't walk through the object
-            if object.solid then
-                self.player.bumped = true
-            
+            print('! ?')
+            if object.solid and (love.keyboard.isDown('enter') or love.keyboard.isDown('return')) then
+                print('! here we are!.')
             
             -- if object has an onConsume function then use it
             elseif object.onConsume then
