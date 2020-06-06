@@ -29,10 +29,13 @@ GAME_OBJECT_DEFS = {
     ['pot'] = {
         type = 'pot',
         texture = 'pots',
---        frame = math.random(9),
         width = 16,
         height = 16,
-        solid = true
+        solid = true,
+        
+        onInteraction = function(pot, player)
+            print('! Interacting with pot now')
+        end
     },
     ['heart'] = {
         type = 'heart',

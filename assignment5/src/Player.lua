@@ -34,13 +34,6 @@ function Player:checkObjectCollisions(objects)
             -- make sure we can't walk through the object if its solid
             if object.solid then
                 table.insert(collidedObjects, object)
-                
-                -- check for player interaction with object
-                if (love.keyboard.isDown('enter') or love.keyboard.isDown('return')) then
-                    print('! interaction')
-                    -- interact with object
-                    --object.onInteract()
-                end
             
             -- if object has an onConsume function then use it
             elseif object.onConsume then
@@ -108,18 +101,57 @@ function Player:checkCollisions(dt, objects)
     end
 end
 
-function Player:checkObjectsTouching(objects)
+function Player:checkInteractiveObject(objects)
     -- return all objects touching the player
+    local touchingObjects = {}
+
+    for k, object in pairs(objects) do
+        if self:collides(object) then
+            -- check that object is interactive
+            if object.onInteraction then
+                object.onInteraction()
+                return object
+            end
+        end
+    end
 end
 
 function Player:checkInteractions(dt, objects)
     -- check if just to left of object
-    -- check if just to the right of object
-    -- check if just above object
-    -- check if just below object
+    if self.direction == 'right' then
+        -- temporarily adjust position
+        self.x = self.x + 2
+        local interactiveObject = self:checkInteractiveObject(objects)
+        -- reset position
+        self.x = self.x - 2
+    end
     
-    -- if #self:checkObjectsTouching(objects) > 0 then we can interact
-    -- then just need to use object.onInteraction callback function
+    -- check if just to the right of object
+    if self.direction == 'left' then
+        -- temporarily adjust position
+        self.x = self.x - 2
+        local interactiveObject = self:checkInteractiveObject(objects)
+        -- reset position
+        self.x = self.x + 2
+    end
+    
+    -- check if just above object
+    if self.direction == 'down' then
+        -- temporarily adjust position
+        self.y = self.y + 2
+        local interactiveObject = self:checkInteractiveObject(objects)
+        -- reset position
+        self.y = self.y - 2
+    end
+    
+    -- check if just below object
+    if self.direction == 'up' then
+        -- temporarily adjust position
+        self.y = self.y - 2
+        local interactiveObject = self:checkInteractiveObject(objects)
+        -- reset position
+        self.y = self.y + 2
+    end
 end
 
 function Player:render()
