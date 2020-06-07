@@ -109,7 +109,7 @@ function Player:checkInteractiveObject(objects)
         if self:collides(object) then
             -- check that object is interactive
             if object.onInteraction then
-                object.onInteraction()
+                object.onInteraction(object, self)
                 return object
             end
         end

@@ -34,7 +34,8 @@ GAME_OBJECT_DEFS = {
         solid = true,
         
         onInteraction = function(pot, player)
-            print('! Interacting with pot now')
+            print('! entering PlayerLiftState')
+            player:changeState('lift', pot)
         end
     },
     ['heart'] = {
