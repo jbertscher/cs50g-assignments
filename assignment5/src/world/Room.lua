@@ -113,9 +113,11 @@ function Room:generateObjects()
         end
     end
     
-    potDef = GAME_OBJECT_DEFS['pot']
     -- get random frame from pot textures to generate each time
+    potDef = GAME_OBJECT_DEFS['pot']
     potDef.frame = math.random(9)
+    
+    -- insert pot
     table.insert(self.objects, GameObject(
         potDef,
         math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -208,21 +210,6 @@ function Room:update(dt)
 
     for k, object in pairs(self.objects) do
         object:update(dt)
-
-        -- trigger collision callback on object
-        if self.player:collides(object) then
-            object:onCollide()
-            -- make sure we can't walk through the object
-            if object.solid then
-                self.player.bumped = true
-            
-            
-            -- if object has an onConsume function then use it
-            elseif object.onConsume then
-               object.onConsume(object, self.player) 
-               table.remove(self.objects, k)
-            end
-        end
     end
 end
 

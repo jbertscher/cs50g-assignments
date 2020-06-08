@@ -50,7 +50,7 @@ function table.slice(tbl, first, last, step)
 end
 
 --[[
-    Generates the flag pole quads
+    Generates the pot quads
 ]]
 function GeneratePotQuads(atlas)
     quads = {}

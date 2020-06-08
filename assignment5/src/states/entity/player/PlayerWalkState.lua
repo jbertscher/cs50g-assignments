@@ -40,11 +40,10 @@ function PlayerWalkState:update(dt)
 
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
+    self:collisionDetection(dt)
+end
 
-    if #self.entity:checkObjectCollisions(self.dungeon.currentRoom.objects) > 0 then
-       self.bumped = true 
-    end
-
+function PlayerWalkState:collisionDetection(dt)
     -- if we bumped something when checking collision, check any object collisions
     if self.bumped then
         if self.entity.direction == 'left' then
@@ -60,17 +59,9 @@ function PlayerWalkState:update(dt)
                     Event.dispatch('shift-left')
                 end
             end
-
-            -- check for collided objects
-            local collidedObjects = self.entity:checkObjectCollisions(self.dungeon.currentRoom.objects)
             
             -- readjust
             self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
-            
-            -- if there is an object collision, then reset x
-            if #collidedObjects > 0 then
-                self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
-            end
             
         elseif self.entity.direction == 'right' then
             
@@ -86,16 +77,8 @@ function PlayerWalkState:update(dt)
                 end
             end
             
-            -- check for collided objects
-            local collidedObjects = self.entity:checkObjectCollisions(self.dungeon.currentRoom.objects)
-
             -- readjust
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
-            
-            -- if there is an object collision, then reset x
-            if #collidedObjects > 0 then
-                self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
-            end
             
         elseif self.entity.direction == 'up' then
             
@@ -111,16 +94,8 @@ function PlayerWalkState:update(dt)
                 end
             end
             
-            -- check for collided objects
-            local collidedObjects = self.entity:checkObjectCollisions(self.dungeon.currentRoom.objects)
-            
             -- readjust
             self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
-            
-            -- if there is an object collision, then reset x
-            if #collidedObjects > 0 then
-                self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
-            end 
         else
             
             -- temporarily adjust position
@@ -134,17 +109,11 @@ function PlayerWalkState:update(dt)
                     Event.dispatch('shift-down')
                 end
             end
-
-            -- check for collided objects
-            local collidedObjects = self.entity:checkObjectCollisions(self.dungeon.currentRoom.objects)
             
             -- readjust
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
-            
-            -- if there is an object collision, then reset x
-            if #collidedObjects > 0 then
-                self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
-            end 
         end
     end
+    
+    self.entity:checkCollisions(dt, self.dungeon.currentRoom.objects)
 end

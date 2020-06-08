@@ -69,6 +69,108 @@ ENTITY_DEFS = {
                 interval = 0.05,
                 looping = false,
                 texture = 'character-swing-sword'
+            },
+            ['sword-up'] = {
+                frames = {5, 6, 7, 8},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-swing-sword'
+            },
+            ['lift-left'] = {
+                frames = {10, 11, 12},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-right'] = {
+                frames = {4, 5, 6},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-down'] = {
+                frames = {1, 2, 3},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-up'] = {
+                frames = {7, 8, 9},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['carry-left'] = {
+                frames = {13, 14, 15, 16},
+                interval = 0.05,
+                looping = true,
+                texture = 'character-carry'
+            },
+            ['carry-right'] = {
+                frames = {5, 6, 7, 8},
+                interval = 0.05,
+                looping = true,
+                texture = 'character-carry'
+            },
+            ['carry-down'] = {
+                frames = {1, 2, 3, 4},
+                interval = 0.05,
+                looping = true,
+                texture = 'character-carry'
+            },
+            ['carry-up'] = {
+                frames = {9, 10, 11, 12},
+                interval = 0.05,
+                looping = true,
+                texture = 'character-carry'
+            },
+            ['idle-carry-left'] = {
+                frames = {13},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-right'] = {
+                frames = {5},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-down'] = {
+                frames = {1},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-up'] = {
+                frames = {9},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['throw-left'] = {
+                frames = {12, 11, 10},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['throw-right'] = {
+                frames = {6, 5, 4},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['throw-down'] = {
+                frames = {3, 2, 1},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['throw-up'] = {
+                frames = {9, 8, 7},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-lift'
             }
         }
     },

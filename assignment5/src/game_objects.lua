@@ -29,10 +29,13 @@ GAME_OBJECT_DEFS = {
     ['pot'] = {
         type = 'pot',
         texture = 'pots',
---        frame = math.random(9),
         width = 16,
         height = 16,
-        solid = true
+        solid = true,
+        
+        onInteraction = function(pot, player)
+            player:changeState('lift', pot)
+        end
     },
     ['heart'] = {
         type = 'heart',
