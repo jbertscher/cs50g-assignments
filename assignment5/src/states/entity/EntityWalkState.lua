@@ -24,6 +24,8 @@ end
 
 function EntityWalkState:update(dt)
     print('! just entered EntityWalkState:update')
+--    if not self.entity then print_r(self) end
+    
     -- assume we didn't hit a wall
     self.bumped = false
 
