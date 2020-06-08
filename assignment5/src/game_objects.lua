@@ -34,7 +34,6 @@ GAME_OBJECT_DEFS = {
         solid = true,
         
         onInteraction = function(pot, player)
-            print('! entering PlayerLiftState')
             player:changeState('lift', pot)
         end
     },

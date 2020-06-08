@@ -124,6 +124,30 @@ ENTITY_DEFS = {
                 looping = true,
                 texture = 'character-carry'
             },
+            ['idle-carry-left'] = {
+                frames = {13},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-right'] = {
+                frames = {5},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-down'] = {
+                frames = {1},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
+            ['idle-carry-up'] = {
+                frames = {9},
+                interval = 0.05,
+                looping = false,
+                texture = 'character-carry'
+            },
             ['throw-left'] = {
                 frames = {12, 11, 10},
                 interval = 0.05,

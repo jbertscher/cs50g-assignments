@@ -1,24 +1,29 @@
-PlayerThrowState = Class{__includes = PlayerThrowState}
+PlayerThrowState = Class{__includes = BaseState}
 
-function PlayerThrowState:init(player)
+function PlayerThrowState:init(player, dungeon)
     self.entity = player
+    self.dungeon = dungeon
 
     -- throw pot animation (depends on which direction player is in)
-    if self.entity.direction == 'left' then
-        self.entity.changeAnimation('throw-left')
-    elseif self.entity.direction == 'right' then
-        self.entity.changeAnimation('throw-right')
-    elseif self.entity.direction == 'up' then
-        self.entity.changeAnimation('throw-up')
-    elseif self.entity.direction == 'down' then
-        self.entity.changeAnimation('throw-down')
-    end 
+    self.entity:changeAnimation('throw-' .. tostring(self.entity.direction))
 end
 
 function PlayerThrowState:enter(object)
     self.carriedObject = object
+    
+    -- force render before update
+    self:render()
 end
 
 function PlayerThrowState:update(dt)
-    -- movement of object
+    self.entity:changeState('idle')
+end
+
+function PlayerThrowState:render()
+    -- render player
+    local anim = self.entity.currentAnimation
+    love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
+        math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY))
+    
+    -- render object
 end

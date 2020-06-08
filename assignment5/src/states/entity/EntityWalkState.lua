@@ -22,10 +22,7 @@ function EntityWalkState:init(entity, dungeon)
     self.bumped = false
 end
 
-function EntityWalkState:update(dt)
-    print('! just entered EntityWalkState:update')
---    if not self.entity then print_r(self) end
-    
+function EntityWalkState:update(dt)    
     -- assume we didn't hit a wall
     self.bumped = false
 

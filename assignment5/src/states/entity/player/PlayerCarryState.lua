@@ -10,14 +10,10 @@ function PlayerCarryState:init(player, dungeon)
 end
 
 function PlayerCarryState:enter(object)
-    print('! entered PlayerCarryState:enter')
     self.carriedObject = object
---    self:update()
 end
 
 function PlayerCarryState:update(dt)
-    print('! just entered PlayerCarryState:update')
-    
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
         self.entity:changeAnimation('carry-left')
@@ -32,19 +28,13 @@ function PlayerCarryState:update(dt)
         self.entity:changeAnimation('carry-down')
     -- player is still carrying the object but is not walking (is idle)
     else
-        self.entity:changeAnimation('idle-carry-' .. self.entity.direction)
+        self.entity:changeState('idle-carry', self.carriedObject)
     end
     
     if love.keyboard.isDown('space') then
-        self.entity:changeState('throw', pot)
+        self.entity:changeState('throw', self.carriedObject )
     end
     
---    print('! CURRENT ANIMATION: ' .. self.entity.currentAnimation)
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
-    print('! just ended PlayerCarryState:update')
 end
-
---function PlayerCarryState:render()    
---    -- render object (player animation handled by PlayerWalkState)
---end

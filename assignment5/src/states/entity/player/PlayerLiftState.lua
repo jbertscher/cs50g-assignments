@@ -9,15 +9,10 @@ function PlayerLiftState:init(entity, dungeon)
     self.entity.offsetX = 0
     
     -- lift object animation
-    if self.entity.direction == 'left' then
-        self.entity:changeAnimation('lift-left')
-    elseif self.entity.direction == 'right' then
-        self.entity:changeAnimation('lift-right')
-    elseif self.entity.direction == 'up' then
-        self.entity:changeAnimation('lift-up')
-    elseif self.entity.direction == 'down' then
-        self.entity:changeAnimation('lift-down')
-    end
+    self.entity:changeAnimation('lift-' .. tostring(self.entity.direction))
+    
+    -- force render before update
+    self:render()
 end
 
 function PlayerLiftState:enter(object)
@@ -25,8 +20,7 @@ function PlayerLiftState:enter(object)
 end
 
 function PlayerLiftState:update(dt)
-    print('! just entered PlayerLiftState:update')
-    self.entity:changeState('carry', self.object)
+    self.entity:changeState('idle-carry', self.object)
 end
     
 function PlayerLiftState:render()
