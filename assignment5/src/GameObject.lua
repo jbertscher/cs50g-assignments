@@ -27,26 +27,45 @@ function GameObject:init(def, x, y)
     self.y = y
     self.width = def.width
     self.height = def.height
+    
+    -- velocity for when object is fired
+    self.isProjectile = def.isProjectile
+    self.fireDirection = def.fireDirection
+    self.dx = def.dx
+    self.dy = def.dy
 
     -- default empty collision callback
     self.onCollide = function() end
     
     self.onConsume = def.onConsume
     self.onInteraction = def.onInteraction
-    self.fire = def.fire
 end
 
 function GameObject:update(dt)
-    
+    if self.isProjectile then
+        if self.fireDirection == 'left' then
+            self.x = self.x - self.dx * dt          
+        elseif self.fireDirection == 'right' then
+            self.x = self.x + self.dx * dt
+        elseif self.fireDirection == 'up' then
+            self.y = self.y - self.dy * dt
+        elseif self.fireDirection == 'down' then
+            self.y = self.y + self.dy * dt
+        end
+    end
 end
 
-function GameObject:fire(dt)
-                if player.direction == 'left' then
-                pot.x = pot.x - dx           
-            elseif player.direction == 'right' then
-            elseif player.direction == 'up' then
-            elseif player.direction == 'down' then
-            end
+function GameObject:fire(entity)
+    self.isProjectile = true
+    self.fireDirection = entity.direction
+end
+
+function GameObject:collides(entity)
+    -- if the object collides with an entity
+        -- object disappears (or is destroyed)
+            -- self.onCollide(self) called
+        -- entity loses life
+            -- entity object's life decremented
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)

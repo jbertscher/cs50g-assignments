@@ -24,6 +24,6 @@ function PlayerIdleCarryState:update(dt)
     end
 
     if love.keyboard.wasPressed('space') then
-        self.entity:changeState('throw')
+        self.entity:changeState('throw', self.carriedObject)
     end
 end

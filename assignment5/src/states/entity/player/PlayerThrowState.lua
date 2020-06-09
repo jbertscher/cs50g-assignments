@@ -10,13 +10,13 @@ end
 
 function PlayerThrowState:enter(object)
     self.carriedObject = object
-    self.carriedObject:fire()
     
     -- force render before update
     self:render()
 end
 
 function PlayerThrowState:update(dt)
+    self.carriedObject:fire(self.entity)
     self.entity:changeState('idle')
 end
 
