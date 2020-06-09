@@ -10,6 +10,7 @@ end
 
 function PlayerThrowState:enter(object)
     self.carriedObject = object
+    self.carriedObject:fire()
     
     -- force render before update
     self:render()
@@ -24,6 +25,4 @@ function PlayerThrowState:render()
     local anim = self.entity.currentAnimation
     love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
         math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY))
-    
-    -- render object
 end

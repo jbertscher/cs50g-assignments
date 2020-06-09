@@ -113,13 +113,13 @@ function Room:generateObjects()
         end
     end
     
+    pot = GameObject(GAME_OBJECT_DEFS['pot'])
     -- get random frame from pot textures to generate each time
-    potDef = GAME_OBJECT_DEFS['pot']
-    potDef.frame = math.random(9)
-    
+    pot.frame = math.random(9)
+        
     -- insert pot
     table.insert(self.objects, GameObject(
-        potDef,
+        pot,
         math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
                     VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
         math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,

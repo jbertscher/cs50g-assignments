@@ -10,17 +10,17 @@ function PlayerLiftState:init(entity, dungeon)
     
     -- lift object animation
     self.entity:changeAnimation('lift-' .. tostring(self.entity.direction))
-    
+end
+
+function PlayerLiftState:enter(object)      
+    self.carriedObject = object
+
     -- force render before update
     self:render()
 end
 
-function PlayerLiftState:enter(object)
-    self.carriedObject = object
-end
-
 function PlayerLiftState:update(dt)
-    self.entity:changeState('idle-carry', self.object)
+    self.entity:changeState('idle-carry', self.carriedObject)
 end
     
 function PlayerLiftState:render()
@@ -30,4 +30,10 @@ function PlayerLiftState:render()
         math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY))
     
     -- render object
+    Timer.tween(0.1, {
+        [self.carriedObject] = {
+            x = self.entity.x,
+            y = self.entity.y - self.carriedObject.height + 4
+        }
+    })
 end

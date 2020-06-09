@@ -32,8 +32,10 @@ GAME_OBJECT_DEFS = {
         width = 16,
         height = 16,
         solid = true,
+        dx = 5,
+        dy = 5,
         
-        onInteraction = function(pot, player)
+        onInteraction = function(player, pot)
             player:changeState('lift', pot)
         end
     },

@@ -33,10 +33,20 @@ function GameObject:init(def, x, y)
     
     self.onConsume = def.onConsume
     self.onInteraction = def.onInteraction
+    self.fire = def.fire
 end
 
 function GameObject:update(dt)
+    
+end
 
+function GameObject:fire(dt)
+                if player.direction == 'left' then
+                pot.x = pot.x - dx           
+            elseif player.direction == 'right' then
+            elseif player.direction == 'up' then
+            elseif player.direction == 'down' then
+            end
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)

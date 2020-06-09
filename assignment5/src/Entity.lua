@@ -71,8 +71,8 @@ function Entity:goInvulnerable(duration)
     self.invulnerableDuration = duration
 end
 
-function Entity:changeState(name)
-    self.stateMachine:change(name)
+function Entity:changeState(name, parms)
+    self.stateMachine:change(name, parms)
 end
 
 function Entity:changeAnimation(name)
