@@ -27,6 +27,10 @@ function GameObject:init(def, x, y)
     self.y = y
     self.width = def.width
     self.height = def.height
+    
+    -- velocity when acting as projectile
+    self.dx = def.dx
+    self.dy = def.dy
 
     -- default empty collision callback
     self.onCollide = function() end
@@ -40,13 +44,15 @@ function GameObject:update(dt)
     
 end
 
-function GameObject:fire(dt)
-                if player.direction == 'left' then
-                pot.x = pot.x - dx           
-            elseif player.direction == 'right' then
-            elseif player.direction == 'up' then
-            elseif player.direction == 'down' then
-            end
+function GameObject:fire(direction, dt)
+    -- TODO:
+    
+    if player.direction == 'left' then
+        self.x = self.x - self.dx * dt          
+    elseif player.direction == 'right' then
+    elseif player.direction == 'up' then
+    elseif player.direction == 'down' then
+    end
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)

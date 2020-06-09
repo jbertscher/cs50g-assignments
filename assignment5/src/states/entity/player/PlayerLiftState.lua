@@ -20,6 +20,34 @@ function PlayerLiftState:enter(object)
 end
 
 function PlayerLiftState:update(dt)
+    if self.entity.direction == 'left' then
+        Timer.tween(0.1, {
+            [self.carriedObject] = {
+                x = self.entity.x,
+                y = self.entity.y - self.carriedObject.height + 8
+            }
+        })
+    elseif self.entity.direction == 'right' then
+        Timer.tween(0.1, {
+            [self.carriedObject] = {
+                x = self.entity.x,
+                y = self.entity.y - self.carriedObject.height + 8
+            }
+        })
+    elseif self.entity.direction == 'down' then
+        Timer.tween(0.1, {
+            [self.carriedObject] = {
+                y = self.entity.y - self.carriedObject.height + 12
+            }
+        })
+    elseif self.entity.direction == 'up' then
+        Timer.tween(0.1, {
+            [self.carriedObject] = {
+                y = self.entity.y - self.carriedObject.height + 4
+            }
+        })
+    end
+    
     self.entity:changeState('idle-carry', self.carriedObject)
 end
     
@@ -28,12 +56,4 @@ function PlayerLiftState:render()
     local anim = self.entity.currentAnimation
     love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
         math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY))
-    
-    -- render object
-    Timer.tween(0.1, {
-        [self.carriedObject] = {
-            x = self.entity.x,
-            y = self.entity.y - self.carriedObject.height + 4
-        }
-    })
 end
