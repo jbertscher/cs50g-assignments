@@ -34,6 +34,7 @@ GAME_OBJECT_DEFS = {
         solid = true,
         dx = 120,
         dy = 120,
+        hitPoints = 1,
         
         onInteraction = function(player, pot)
             player:changeState('lift', pot)

@@ -209,6 +209,9 @@ function Room:update(dt)
     end
 
     for k, object in pairs(self.objects) do
+        if not object.inPlay then 
+            table.remove(self.objects, k)
+        end
         object:update(dt)
     end
 end
