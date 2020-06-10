@@ -17,15 +17,13 @@ end
 
 function PlayerIdleCarryState:update(dt)
     EntityIdleState.update(self, dt)
-end
-
-function PlayerIdleCarryState:update(dt)
+    
     if love.keyboard.isDown('left') or love.keyboard.isDown('right') or
        love.keyboard.isDown('up') or love.keyboard.isDown('down') then
            self.entity:changeState('carry', self.carriedObject)
     end
 
     if love.keyboard.wasPressed('space') then
-        self.entity:changeState('throw')
+        self.entity:changeState('throw', self.carriedObject)
     end
 end

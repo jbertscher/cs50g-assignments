@@ -14,6 +14,9 @@ function PlayerCarryState:enter(object)
 end
 
 function PlayerCarryState:update(dt)
+    self.carriedObject.x = self.entity.x
+    self.carriedObject.y = self.entity.y - self.carriedObject.height + 4
+    
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
         self.entity:changeAnimation('carry-left')
