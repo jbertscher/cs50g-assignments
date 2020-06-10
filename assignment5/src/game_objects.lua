@@ -38,11 +38,6 @@ GAME_OBJECT_DEFS = {
         
         onInteraction = function(player, pot)
             player:changeState('lift', pot)
-        end,
-        
-        onCollide = function(pot)
-            pot.x = -100
-            pot.y = -100
         end
     },
     ['heart'] = {

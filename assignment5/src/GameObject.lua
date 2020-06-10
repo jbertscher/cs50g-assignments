@@ -35,14 +35,16 @@ function GameObject:init(def, x, y)
     self.isProjectile = def.isProjectile
     self.fireDirection = def.fireDirection
     self.hitPoints = def.hitPoints
+    self.projectileStartX = def.projectileStartX
+    self.projectileStartY = def.projectileStartY
     self.dx = def.dx
     self.dy = def.dy
     
     self.currentRoom = def.room
 
     -- default empty collision callback
-    self.onCollide = function() end
-    
+--    self.onCollide = function() end
+    self.onCollide = def.onCollide
     -- other callbacks
     self.onConsume = def.onConsume
     self.onInteraction = def.onInteraction
@@ -80,22 +82,20 @@ function GameObject:update(dt)
         end
         
         -- check travelling farther than 4 tiles
+        if math.abs(self.x - self.projectileStartX) + math.abs(self.y - self.projectileStartY) >= 4*TILE_SIZE then
+            self.inPlay = false
         end
+    end
 end
 
 function GameObject:fire(entity, room)
     self.isProjectile = true
     self.fireDirection = entity.direction
-    self.y = entity.y
     self.currentRoom = room
-end
+    self.y = entity.y
+    self.projectileStartX = self.x
+    self.projectileStartY = self.y
 
-function GameObject:collides(entity)
-    -- if the object collides with an entity
-        -- object disappears (or is destroyed)
-            -- self.onCollide(self) called
-        -- entity loses life
-            -- entity object's life decremented
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
