@@ -42,16 +42,14 @@ function GameObject:init(def, x, y)
     
     self.currentRoom = def.room
 
-    -- default empty collision callback
---    self.onCollide = function() end
+    -- callback functions
     self.onCollide = def.onCollide
-    -- other callbacks
     self.onConsume = def.onConsume
     self.onInteraction = def.onInteraction
 end
 
 function GameObject:update(dt)
-    if self.isProjectile then
+    if self.isProjectile and self.inPlay then
         if self.fireDirection == 'left' then
             self.x = self.x - self.dx * dt          
         elseif self.fireDirection == 'right' then
@@ -64,7 +62,8 @@ function GameObject:update(dt)
         
         -- check collision with entity
         for k, entity in pairs(self.currentRoom.entities) do
-            if entity:collides(self) then
+            if entity:collides(self) and not entity.dead then
+                print_r(entity)
                 entity:damage(self.hitPoints)
                 self.inPlay = false
             end
