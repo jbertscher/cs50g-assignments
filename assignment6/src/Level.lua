@@ -16,6 +16,10 @@ function Level:init()
     -- bodies we will destroy after the world update cycle; destroying these in the
     -- actual collision callbacks can cause stack overflow and other errors
     self.destroyedBodies = {}
+    
+    -- keep track of whether a collision or player alien split has taken place 
+    self.wasCollision = false
+    self.hasSplit = false
 
     -- define collision callbacks for our world; the World object expects four,
     -- one for different stages of any given collision
@@ -26,6 +30,7 @@ function Level:init()
 
         -- if we collided between both an alien and an obstacle...
         if types['Obstacle'] and types['Player'] then
+            self.wasCollision = true
 
             -- destroy the obstacle if player's combined velocity is high enough
             if a:getUserData() == 'Obstacle' then
@@ -47,6 +52,7 @@ function Level:init()
 
         -- if we collided between an obstacle and an alien, as by debris falling...
         if types['Obstacle'] and types['Alien'] then
+            self.wasCollision = true
 
             -- destroy the alien if falling debris is falling fast enough
             if a:getUserData() == 'Obstacle' then
@@ -68,6 +74,7 @@ function Level:init()
 
         -- if we collided between the player and the alien...
         if types['Player'] and types['Alien'] then
+            self.wasCollision = true
 
             -- destroy the alien if player is traveling fast enough
             if a:getUserData() == 'Player' then
@@ -89,6 +96,7 @@ function Level:init()
 
         -- if we hit the ground, play a bounce sound
         if types['Player'] and types['Ground'] then
+            self.wasCollision = true
             gSounds['bounce']:stop()
             gSounds['bounce']:play()
         end
@@ -116,6 +124,9 @@ function Level:init()
 
     -- aliens in our scene
     self.aliens = {}
+    
+    -- player aliens in our scene
+    self.splitPlayerAliens = {}
 
     -- obstacles guarding aliens that we can destroy
     self.obstacles = {}
@@ -142,6 +153,32 @@ function Level:init()
 
     -- background graphics
     self.background = Background()
+end
+
+--[[
+    This function is responsible for "splitting" the alien
+]]
+function Level:splitPlayerAlien()    
+    local xPos = self.launchMarker.alien.body:getX()
+    local yPos = self.launchMarker.alien.body:getY()
+
+    for i = 1, 2 do 
+        -- spawn new split alien in the world, passing in user data of player
+        splitPlayerAlien = Alien(self.world, 'round', xPos, yPos, 'Player')
+ 
+         -- make the alien pretty bouncy
+        splitPlayerAlien.fixture:setRestitution(0.4)
+        splitPlayerAlien.body:setAngularDamping(1)
+        
+        table.insert(self.splitPlayerAliens, splitPlayerAlien)
+    end
+
+    -- apply the linear velocity of split aliens based on the original alien's
+    local xVel, yVel = self.launchMarker.alien.body:getLinearVelocity()
+    self.splitPlayerAliens[1].body:setLinearVelocity(xVel - 10, yVel + 15)
+    self.splitPlayerAliens[2].body:setLinearVelocity(xVel + 30, yVel - 15)
+    
+    self.hasSplit = true
 end
 
 function Level:update(dt)
@@ -184,18 +221,42 @@ function Level:update(dt)
 
     -- replace launch marker if original alien stopped moving
     if self.launchMarker.launched then
-        local xPos, yPos = self.launchMarker.alien.body:getPosition()
-        local xVel, yVel = self.launchMarker.alien.body:getLinearVelocity()
+        local allAliens = {self.launchMarker.alien}
         
-        -- if we fired our alien to the left or it's almost done rolling, respawn
-        if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
-            self.launchMarker.alien.body:destroy()
-            self.launchMarker = AlienLaunchMarker(self.world)
-
-            -- re-initialize level if we have no more aliens
-            if #self.aliens == 0 then
-                gStateMachine:change('start')
+        -- add the split aliens to our table of aliens, if they exist
+        if self.splitPlayerAliens then
+            for k, alien in pairs(self.splitPlayerAliens) do
+                table.insert(allAliens, alien)
             end
+        end
+        
+        local destroyedAliens = {}
+        for k, alien in pairs(allAliens) do
+            local xPos, yPos = alien.body:getPosition()
+            local xVel, yVel = alien.body:getLinearVelocity()
+            
+            -- if we fired our alien to the left or it's almost done rolling, respawn
+            if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
+                table.insert(destroyedAliens, k)
+                
+                -- re-initialize level if we have no more aliens
+                if #self.aliens == 0 then
+                    gStateMachine:change('start')
+                end
+            end
+        end
+        
+        for k, alien in pairs(destroyedAliens) do
+            allAliens[k].body:destroy()
+            table.remove(allAliens, k)
+        end
+        
+        if #allAliens == 0 then
+            self.launchMarker = AlienLaunchMarker(self.world)
+        end
+
+        if love.keyboard.wasPressed('space') and not self.wasCollision then
+            self:splitPlayerAlien()
         end
     end
 end
@@ -214,6 +275,10 @@ function Level:render()
 
     for k, obstacle in pairs(self.obstacles) do
         obstacle:render()
+    end
+    
+    for k, splitPlayerAlien in pairs(self.splitPlayerAliens) do
+        splitPlayerAlien:render()
     end
 
     -- render instruction text if we haven't launched bird
