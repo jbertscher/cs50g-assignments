@@ -16,6 +16,10 @@ function Level:init()
     -- bodies we will destroy after the world update cycle; destroying these in the
     -- actual collision callbacks can cause stack overflow and other errors
     self.destroyedBodies = {}
+    
+    -- keep track of whether a collision has taken place (if not, allow alien to spawn
+    -- into 3 aliens, as per assignment.
+    self.wasCollision = false
 
     -- define collision callbacks for our world; the World object expects four,
     -- one for different stages of any given collision
@@ -26,6 +30,7 @@ function Level:init()
 
         -- if we collided between both an alien and an obstacle...
         if types['Obstacle'] and types['Player'] then
+            self.wasCollision = true
 
             -- destroy the obstacle if player's combined velocity is high enough
             if a:getUserData() == 'Obstacle' then
@@ -47,6 +52,7 @@ function Level:init()
 
         -- if we collided between an obstacle and an alien, as by debris falling...
         if types['Obstacle'] and types['Alien'] then
+            self.wasCollision = true
 
             -- destroy the alien if falling debris is falling fast enough
             if a:getUserData() == 'Obstacle' then
@@ -68,6 +74,7 @@ function Level:init()
 
         -- if we collided between the player and the alien...
         if types['Player'] and types['Alien'] then
+            self.wasCollision = true
 
             -- destroy the alien if player is traveling fast enough
             if a:getUserData() == 'Player' then
@@ -144,6 +151,13 @@ function Level:init()
     self.background = Background()
 end
 
+--[[
+    This function is responsible for "splitting" the alien
+]]
+function Level:splitAlien()
+    print('! split alien')
+end
+
 function Level:update(dt)
     -- update launch marker, which shows trajectory
     self.launchMarker:update(dt)
@@ -184,6 +198,11 @@ function Level:update(dt)
 
     -- replace launch marker if original alien stopped moving
     if self.launchMarker.launched then
+        if love.keyboard.wasPressed('space') and not self.wasCollision then
+            print('! here')
+            Level:splitAlien()
+        end
+        
         local xPos, yPos = self.launchMarker.alien.body:getPosition()
         local xVel, yVel = self.launchMarker.alien.body:getLinearVelocity()
         
