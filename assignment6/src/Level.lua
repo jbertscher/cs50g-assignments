@@ -221,23 +221,29 @@ function Level:update(dt)
 
     -- replace launch marker if original alien stopped moving
     if self.launchMarker.launched then
-        local allAliens = {self.launchMarker.alien}
+        local allPlayerAliens = {}
         
-        -- add the split aliens to our table of aliens, if they exist
+        -- add the original alien, if not destroyed
+        if not self.launchMarker.alien.body:isDestroyed() then
+            table.insert(allPlayerAliens, self.launchMarker.alien)
+        end
+        
+        -- add the split aliens to our table of aliens, if they exist and are not destroyed
         if self.splitPlayerAliens then
             for k, alien in pairs(self.splitPlayerAliens) do
-                table.insert(allAliens, alien)
+                if not alien.body:isDestroyed() then
+                    table.insert(allPlayerAliens, alien)
+                end
             end
         end
         
-        local destroyedAliens = {}
-        for k, alien in pairs(allAliens) do
+        for k, alien in pairs(allPlayerAliens) do
             local xPos, yPos = alien.body:getPosition()
             local xVel, yVel = alien.body:getLinearVelocity()
             
             -- if we fired our alien to the left or it's almost done rolling, respawn
             if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
-                table.insert(destroyedAliens, k)
+                alien.body:destroy()
                 
                 -- re-initialize level if we have no more aliens
                 if #self.aliens == 0 then
@@ -246,15 +252,11 @@ function Level:update(dt)
             end
         end
         
-        for k, alien in pairs(destroyedAliens) do
-            allAliens[k].body:destroy()
-            table.remove(allAliens, k)
-        end
-        
-        if #allAliens == 0 then
+        if #allPlayerAliens == 0 then
             self.launchMarker = AlienLaunchMarker(self.world)
         end
 
+        -- allow alien to split if no collission has been detected before
         if love.keyboard.wasPressed('space') and not self.wasCollision then
             self:splitPlayerAlien()
         end
