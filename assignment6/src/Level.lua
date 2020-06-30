@@ -229,11 +229,9 @@ function Level:update(dt)
         end
         
         -- add the split aliens to our table of aliens, if they exist and are not destroyed
-        if self.splitPlayerAliens then
-            for k, alien in pairs(self.splitPlayerAliens) do
-                if not alien.body:isDestroyed() then
-                    table.insert(allPlayerAliens, alien)
-                end
+        for k, alien in pairs(self.splitPlayerAliens) do
+            if not alien.body:isDestroyed() then
+                table.insert(allPlayerAliens, alien)
             end
         end
         
@@ -241,19 +239,23 @@ function Level:update(dt)
             local xPos, yPos = alien.body:getPosition()
             local xVel, yVel = alien.body:getLinearVelocity()
             
-            -- if we fired our alien to the left or it's almost done rolling, respawn
-            if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
+            -- if we fired our alien to the left or right or it's almost done rolling, respawn
+            if xPos < 0 or xPos > VIRTUAL_WIDTH or (math.abs(xVel) + math.abs(yVel) < 1.5) then
                 alien.body:destroy()
-                
-                -- re-initialize level if we have no more aliens
-                if #self.aliens == 0 then
-                    gStateMachine:change('start')
-                end
             end
         end
-        
+        print('! #allPlayerAliens: '..tostring(#allPlayerAliens))
         if #allPlayerAliens == 0 then
+
+            -- re-initialize launchMarker when all aliens have stopped moving 
+            -- or have been destroyed
             self.launchMarker = AlienLaunchMarker(self.world)
+            
+            -- re-initialize level if we have no more aliens (of any type)
+            print('! #self.aliens: '..tostring(#self.aliens ))
+            if #self.aliens == 0 then
+                gStateMachine:change('start')
+            end
         end
 
         -- allow alien to split if no collission has been detected before
